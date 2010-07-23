@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.openobex
+Exec=@servicedir@/obex-data-server --no-daemon @add_args@

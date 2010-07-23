@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/">
+  <interface name="org.openobex.ServerSession">
+    <method name="Disconnect">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+   	</method>
+    <method name="GetTransferInfo">
+      <arg type="a{ss}" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="Accept">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="Reject">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="Cancel">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <signal name="Cancelled" />
+    <signal name="Disconnected" />
+    <signal name="TransferStarted">
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+      <arg type="t" direction="out"/>
+    </signal>
+    <signal name="TransferProgress">
+      <arg type="t" direction="out"/>
+    </signal>
+    <signal name="TransferCompleted" />
+    <signal name="ErrorOccurred">
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+    </signal>
+    <signal name="RemoteDisplayRequested">
+      <arg type="s" direction="out"/>
+    </signal>
+  </interface>
+</node>
+

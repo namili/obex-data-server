@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/">
+  <interface name="org.openobex.Session">
+    <method name="Disconnect">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+   	</method>
+    <method name="Close">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="ChangeCurrentFolder">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="path" />
+    </method>
+    <method name="ChangeCurrentFolderBackward">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="ChangeCurrentFolderToRoot">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="GetCurrentPath">
+      <arg type="s" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="CopyRemoteFile">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="remote_filename" />
+      <arg type="s" name="local_path" />
+    </method>
+    <method name="CopyRemoteFileByType">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="type" />
+      <arg type="s" name="local_path" />
+    </method>
+    <method name="CreateFolder">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="folder_name" />
+    </method>
+    <method name="RetrieveFolderListing">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="listing" direction="out" />
+    </method>
+    <method name="SendFileExt">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="local_path" />
+      <arg type="s" name="remote_filename" />
+      <arg type="s" name="type" />
+    </method>
+    <method name="SendFile">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="local_path" />
+    </method>
+    <method name="SetTransferHints">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="fifo" />
+      <arg type="s" name="remote_filename" />
+      <arg type="s" name="type" />
+      <arg type="t" name="size" />
+      <arg type="x" name="mtime" />
+      <arg type="x" name="ctime" />
+    </method>
+    <method name="DeleteRemoteFile">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="remote_filename" />
+    </method>
+    <method name="RemoteCopy">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="remote_source" />
+      <arg type="s" name="remote_destination" />
+    </method>
+    <method name="RemoteMove">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="remote_source" />
+      <arg type="s" name="remote_destination" />
+    </method>
+    <method name="GetImageInfo">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="local_path" />
+      <arg type="q" name="width" direction="out" />
+      <arg type="q" name="height" direction="out" />
+      <arg type="s" name="encoding" direction="out" />
+    </method>
+    <method name="PutImage">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="local_path" />
+    </method>
+    <method name="PutImageResized">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="local_path" />
+      <arg type="q" name="width" />
+      <arg type="q" name="height" />
+      <arg type="s" name="encoding" />
+      <arg type="s" name="transformation" />
+    </method>
+    <method name="PutLinkedAttachment">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="image_handle" />
+      <arg type="s" name="local_path" />
+      <arg type="s" name="content_type" />
+      <arg type="s" name="charset" />
+    </method>
+    <method name="RemoteDisplaySelectImage">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="image_handle" />
+    </method>
+    <method name="RemoteDisplayShowCurrentImage">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="RemoteDisplayShowNextImage">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="RemoteDisplayShowPreviousImage">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="GetCapability">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="capability" direction="out" />
+    </method>
+    <method name="GetImagingCapabilities">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="imaging_capabilities" direction="out" />
+    </method>
+    <method name="GetTransferInfo">
+      <arg type="a{ss}" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="IsBusy">
+      <arg type="b" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="Cancel">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <signal name="Cancelled" />
+    <signal name="Disconnected" />
+    <signal name="Closed" />
+    <signal name="TransferStarted">
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+      <arg type="t" direction="out"/>
+    </signal>
+    <signal name="TransferProgress">
+      <arg type="t" direction="out"/>
+    </signal>
+    <signal name="TransferCompleted" />
+    <signal name="ErrorOccurred">
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+    </signal>
+    <signal name="ImageHandleReceived">
+      <arg type="s" direction="out"/>
+      <arg type="b" direction="out"/>
+    </signal>
+  </interface>
+</node>
+

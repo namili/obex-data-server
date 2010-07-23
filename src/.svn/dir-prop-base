@@ -1,0 +1,17 @@
+K 10
+svn:ignore
+V 189
+Makefile
+Makefile.in
+.deps
+.libs
+obex-data-server
+ods-marshal.h
+ods-marshal.c
+ods-manager-dbus-glue.h
+ods-server-dbus-glue.h
+ods-server-session-dbus-glue.h
+ods-session-dbus-glue.h
+gmon.out
+
+END

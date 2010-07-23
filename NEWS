@@ -1,0 +1,98 @@
+0.4.5 version
+    * Add support for GET folder listing with name header in server (usually name header is not used!)
+    * Fix system bus configuration file according to new default policy
+    * Use locales only for filenames (previously caused D-Bus disconnect when translated errors were passed)
+    * Refine logging functionality (ability to log to syslog, enable/disable debug messages)
+    * Use silent and non-recursive makefiles
+    * New OPP test script: ods-opp-test.py
+    * Request timeout system (when no response is received from remote device in 15 seconds
+      after request was issued, TimeOut error will happen and connection will be closed)
+    * Transfer suspension timeout system (when auto_accept is False for server
+      and Accept() or Reject() is not called in 15 seconds after TransferStarted
+      signal, incoming file will be automatically rejected)
+    * Support for TTY transport (server and client). TTY server can be used in USB
+      gadgets, session support is somewhat experimental and only for testing purposes
+    * A bunch of other bugs fixed and code cleaned up in quiet a few places :)
+
+0.4.4 version
+	* Revert openobex 1.4 dependency. Now ods builds with openobex 1.3
+	  even with usb support on
+
+0.4.3 version
+	* Fix Nokia SDP workaround (this has been broken back in 0.4)
+	* Actually export RemoteCopy and RemoteMove methods
+	* Export more information about USB interfaces. ods now depends
+	  on libusb and openobex 1.4 for usb support. USB support can be
+	  disable with --disable-usb.
+	* Export OBEXCommand in TransferInfo to differentiate between PUT
+	  and GET requests
+	* Various server fixes
+
+0.4.2 version
+	* Implement RemoteCopy and RemoteMove methods in Session
+	* Use Wand.pc for ImageMagick PKG_CHECK to be compatible with all distros
+	* Avoid executing obex_request_put in ServerSession several times for the
+	  same transfer
+	* Avoid printing out NULL for ARM compatibility
+	* Check for Bluez 3.34 or later in configure
+
+0.4.1 version
+	* Fix a race condition when client app misses ServerSession.TransferStarted signal
+	* Do not use g_assert for checking if DBus context is set in Session and ServerSession methods
+	* Fix TransferStarted signal emission in ServerSession
+
+0.4 version
+	* Implement partial BIP profile support (ImagePush and RemoteDisplay features supported)
+	* Add support for Bluez 4.x (also still compatible with Bluez 3.x)
+	* Add support for USB transport (only for Sessions ATM)
+	* Add a way to cancel Session connection (Manager.CancelSessionConnect)
+	* FTP servers now expose a capability object
+	* When creating new files, set permissions according to umask
+	* Add a way to specify source Bluetooth adapter for Sessions (changed CreateBluetoothSession)
+	* Let applications know about all sessions/servers running (GetServerList(), GetSessionList() methods)
+	* Lots of other bug fixes
+
+0.3.4 version
+	* Fix filename conversion to UTF-16 (bug introduced in 0.3.2)
+	* Add manual page
+	* When --enable-system-config build option is used, change DBus .service file accordingly
+	* Small build fixes
+
+0.3.3 version
+	* Properly close sockets for Session and ServerSession objects
+
+0.3.2 version
+	* Reduce compiler warnings (fixes bug #98)
+	* Fix ServerSession Accept/Reject (bug #54, only works with patched openobex)
+	* Use different FTP UUID for some Nokia devices (bug #55)
+	* Don't try to remove service record when it is not registered (bug #79)
+	* Check OBEX Target header for FTP sessions (bug #81)
+	* Disable FTP specific commands when OPP is used (bug #82)
+	* Use UTF-8 filenames in folder listing objects (bug #78)
+	* Improve OBEX error reporting (bugs #85, #86, #87, #88)
+	* Fix crashers on exit (bugs #77, #83)
+	* Portability fixes (bug #91)
+	* Check connection ID for FTP session (bugs #90, #92)
+	* Send empty Name header when using ChangeCurrentFolderToRoot (bug #100)
+	* Don't try to access memory regions that were already freed (bug #74).
+	  Also fixes a long-standing segfault issue (bug #46)
+
+0.3.1 version
+	* Fix two crashers (bugs #57, #59)
+	* Add SDP record support for PBAP server (no real PBAP support yet) (bug #60)
+	* Fix naming issue in configure.in
+
+0.3 version:
+	* API change: Manager.CreateBluetoothServer(string source_address, string pattern, boolean require_pairing)
+	* API change: Server.Start(string path, boolean allow_write, boolean auto_accept)
+	* update ods-server-test.py according to new API
+	* Remove some memory leaks
+
+0.2 version:
+	* Distribute python tests (ods-session-test.py and ods-server-test.py).
+	* Make object paths lowercase.
+	* API change: Server.Start(string path, boolean allow_write, boolean require_pairing, boolean auto_accept).
+	* New methods: Server.Accept(), Server.Reject().
+	* Fix server SDP record lifetime (now exists between Start() and Stop()).
+	* Make D-Bus system config file optional (enable with --enable-system-config configure option).
+	* Exclude dot files from folder listings.

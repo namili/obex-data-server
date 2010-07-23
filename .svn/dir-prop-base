@@ -1,0 +1,26 @@
+K 10
+svn:ignore
+V 225
+.settings
+.cdtproject
+.project
+stamp-h1
+missing
+ltmain.sh
+libtool
+install-sh
+depcomp
+configure
+config.log
+config.sub
+config.status
+config.h.in
+config.guess
+aclocal.m4
+acinclude.m4
+Makefile.in
+Makefile
+config.h
+autom4te.cache
+
+END

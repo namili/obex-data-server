@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/">
+  <interface name="org.openobex.Manager">
+    <method name="CreateBluetoothSession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="target_address" />
+      <arg type="s" name="source_address" />
+      <arg type="s" name="pattern" />
+      <arg type="o" name="session_object" direction="out" />
+    </method>
+    <method name="CreateBluetoothImagingSession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="target_address" />
+      <arg type="s" name="source_address" />
+      <arg type="s" name="bip_feature" />
+      <arg type="o" name="session_object" direction="out" />
+    </method>
+    <method name="CreateUsbSession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="u" name="interface_number" />
+      <arg type="s" name="pattern" />
+      <arg type="o" name="session_object" direction="out" />
+    </method>
+    <method name="CreateTtySession">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="tty_dev" />
+      <arg type="s" name="pattern" />
+      <arg type="o" name="session_object" direction="out" />
+    </method>
+    <method name="GetUsbInterfacesNum">
+      <arg type="u" name="interfaces_number" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+     <method name="GetUsbInterfaceInfo">
+      <arg type="u" name="interface_number" />
+      <arg type="a{ss}" name="usb_interface" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="CancelSessionConnect">
+      <arg type="s" name="session_object" />
+      <arg type="b" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="CreateBluetoothServer">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="source_address" />
+      <arg type="s" name="pattern" />
+      <arg type="b" name="require_pairing" />
+      <arg type="o" name="server_object" direction="out" />
+    </method>
+    <method name="CreateTtyServer">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="tty_dev" />
+      <arg type="s" name="pattern" />
+      <arg type="o" name="server_object" direction="out" />
+    </method>
+    <method name="GetSessionInfo">
+      <arg type="o" name="session_object" />
+      <arg type="a{ss}" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="GetServerInfo">
+      <arg type="o" name="server_object" />
+      <arg type="a{ss}" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="GetSessionList">
+      <arg type="as" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="GetServerList">
+      <arg type="as" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="GetVersion">
+      <arg type="s" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <signal name="SessionConnected">
+      <arg type="o" direction="out" />
+    </signal>
+    <signal name="SessionClosed">
+      <arg type="o" direction="out" />
+    </signal>
+	<signal name="SessionConnectError">
+	  <arg type="o" direction="out"/>
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+    </signal>
+  </interface>
+</node>
+

@@ -1,0 +1,1755 @@
+2010-02-06  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-logging.c (ods_log_obex):
+	* src/ods-logging.h:
+	* src/ods-server-session.c (obex_event):
+	* src/ods-session.c (session_log), (obex_io_callback),
+	(obex_request_done), (obex_event), (ods_session_finalize),
+	(resize_image_cb):
+	Improve message logging for sessions so that message is always prefixed 
+	with session's dbus path
+
+2010-01-22  Tadas Dailyda  <tadas@dailyda.com>
+
+    * src/ods-bluez.c (sdp_initiate_search), (ods_bluez_cancel_get_client_socket):
+    Fix crasher during SDP discovery
+
+2010-01-03  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_get), (ods_obex_srv_put):
+    Handle invalid Type header gracefully	
+
+2009-10-22  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.ac:
+	* src/ods-usb.c:
+	* src/ods-usb.h:
+	Fix ods-usb.{c|h} to not include usb.h when using --disable-usb (#215)
+
+====== obex-data-server-0.4.5 ======
+
+2009-10-18  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	Add info about suspend timeouts
+
+2009-10-18  Tadas Dailyda  <tadas@dailyda.com>
+
+	* test/ods-opp-test.py:
+	* test/ods-server-test.py:
+	update test scripts to support tty transport
+
+2009-10-18  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-logging.c (log_handler):
+	* src/ods-manager.c (tty_open):
+	* test/ods-server-test.py:
+	Little fix in logging, enable tty transport in ods-server-test.py
+
+2009-10-18  Tadas Dailyda  <tadas@dailyda.com>
+
+	* data/obex-data-server.1:
+	* src/ods-main.c (main):
+	* src/ods-obex.c (ods_obex_susp_timeout),
+	(ods_obex_transfer_suspend):
+	* src/ods-obex.h:
+	Update man page, implement suspend timeouts, fix -v
+
+2009-09-02  Tadas Dailyda  <tadas@dailyda.com>
+
+	* Makefile.am:
+	* acinclude.m4:
+	* autogen.sh:
+	* configure.ac:
+	* configure.in:
+	* data/Makefile.am:
+	* dbus-api.txt:
+	* src/Makefile.am:
+	* src/ods-capabilities.c (ods_get_capability),
+	(ods_get_imaging_capabilities):
+	* src/ods-manager.c (ods_manager_session_list_add),
+	(ods_manager_session_info_free), (client_socket_connected_cb),
+	(tty_open), (create_bluetooth_session_full),
+	(ods_manager_create_usb_session), (connect_tty_session),
+	(ods_manager_create_tty_session), (ods_manager_create_tty_server),
+	(ods_manager_get_session_info):
+	* src/ods-manager.h:
+	* src/ods-manager.xml:
+	* src/ods-obex.c (ods_obex_get_new_path):
+	* src/ods-server-session.c (ods_server_session_finalize):
+	* src/ods-server.c (server_session_disconnected_cb),
+	(connect_callback), (ods_server_attach_callback),
+	(ods_server_constructor), (ods_server_finalize):
+	* src/ods-session.c:
+	* test/Makefile.am:
+	Use non-recursive/silent build system, add support for TTY sessions,
+	fix TTY server support, other bug fixes and code cleanup
+
+2009-08-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* dbus-api.txt:
+	* src/ods-logging.c (log_handler):
+	* src/ods-manager.c (ods_manager_server_list_add),
+	(ods_manager_server_info_free), (server_started_cb),
+	(server_stopped_cb), (ods_manager_create_bluetooth_server),
+	(tty_init), (ods_manager_create_tty_server),
+	(ods_manager_get_server_info):
+	* src/ods-manager.h:
+	* src/ods-manager.xml:
+	* src/ods-obex.c (ods_obex_get_new_path), (ods_obex_context_new),
+	(ods_obex_setup_fdtransport), (ods_obex_connect_done),
+	(ods_obex_srv_connect):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (ods_server_session_set_property),
+	(ods_server_session_get_property), (ods_server_session_class_init):
+	* src/ods-server-session.h:
+	* src/ods-server.c (ods_server_session_list_add),
+	(connect_callback), (ods_server_set_property),
+	(ods_server_get_property), (ods_server_class_init),
+	(ods_server_init), (ods_server_finalize),
+	(ods_server_get_server_session_info):
+	* src/ods-server.h:
+	* src/ods-session.c (ods_session_set_property):
+	Add TTY server support, fix debug off in logging, refine filename choosing,
+	prepare for 0.4.5 release
+
+2009-08-23  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_timeout), (ods_obex_setup_fdtransport),
+	(ods_obex_close_transport), (ods_obex_writestream):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (emit_disconnected),
+	(ods_server_session_set_property),
+	(ods_server_session_cancel_internal):
+	* src/ods-session.c (emit_connect_result_internal),
+	(emit_disconnected), (ods_session_set_property),
+	(ods_session_cancel_internal):
+	Fix one newly introduced bug, workaround request cancelling bug in openobex
+
+2009-08-22  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-common.c (ods_safe_gsource_remove):
+	* src/ods-common.h:
+	* src/ods-logging.c:
+	* src/ods-obex.c (ods_obex_timeout), (ods_obex_io):
+	* src/ods-session.c (emit_connect_result_internal),
+	(emit_disconnected):
+	Add ods_safe_gsource_remove for safely removing event sources
+
+2009-08-22  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (ods_manager_get_usb_interface_info):
+	* src/ods-obex.c (ods_process_usb_input), (ods_obex_timeout),
+	(ods_obex_send), (ods_obex_io), (ods_obex_setup_fdtransport),
+	(ods_obex_setup_usbtransport), (ods_obex_connect_done),
+	(ods_obex_connect), (ods_obex_srv_connect), (ods_obex_disconnect),
+	(ods_obex_readstream), (ods_obex_get), (ods_obex_put_full),
+	(ods_obex_setpath), (ods_obex_action):
+	* src/ods-obex.h:
+	* src/ods-session.c (emit_connect_result_internal),
+	(emit_disconnected), (obex_usbevent), (ods_session_set_property):
+	* src/ods-session.h:
+	* src/ods-usb.c (find_obex_data_interface),
+	(find_obex_service_descriptor):
+	Implement timeout system, various code cleanup all over the place
+
+2009-08-22  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_setup_fdtransport),
+	(ods_obex_setup_usbtransport):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (ods_server_session_set_property):
+	* src/ods-session.c (ods_session_set_property):
+	* test/Makefile.am:
+	Move transport setup to ods-obex.c, add obex_event to OdsObexContext,
+	distribute ods-opp-test.py
+
+2009-08-20  Tadas Dailyda  <tadas@dailyda.com>
+
+	* autogen.sh:
+	* configure.in:
+	* test/ods-opp-test.py:
+	Add silent rules to automake, add simple OPP send test script
+
+2009-08-17  Tadas Dailyda  <tadas@dailyda.com>
+
+	* data/obex-data-server.1:
+	* src/Makefile.am:
+	* src/ods-logging.c (log_handler), (ods_log_init),
+	(ods_log_finalize), (ods_log_obex):
+	* src/ods-logging.h:
+	* src/ods-main.c (ods_service_register), (main):
+	* src/ods-server-session.c (obex_event):
+	* src/ods-session.c (obex_event):
+	Add more advanced logging functionality with ability to log to syslog
+
+2009-07-16  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-main.c (main):
+	Use locales ONLY for filenames!
+
+2009-06-02  Tadas Dailyda  <tadas@dailyda.com>
+
+	* data/obex-data-server.conf:
+	* test/ods-dbus-test.c (session_connected_cb),
+	(session_connect_error_cb):
+	Fix system bus configuration, update ods-dbus-test.c a little bit
+
+2009-04-17  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	Fix RetrieveFolderListing description
+
+2009-02-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_get):
+	Add support for GET using folder listing type 
+	and name header in server
+
+2009-02-10  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (client_socket_connect_cb), (rfcomm_connect),
+	(sdp_get_channel), (sdp_search_completed_cb),
+	(sdp_search_process_cb), (sdp_connect_watch),
+	(ods_bluez_cancel_get_client_socket):
+	* src/ods-bluez.h:
+	* src/ods-manager.c (client_socket_connected_cb),
+	(create_bluetooth_session_full):
+	* src/ods-session.c (ods_session_class_init):
+	* test/ods-session-test.py:
+	Revert previous changes and update ods-session-test.py
+	to actually work with 0.4 API
+
+2009-02-10  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (client_socket_connect_cb), (rfcomm_connect),
+	(sdp_get_channel), (sdp_search_completed_cb),
+	(sdp_search_process_cb), (sdp_connect_watch),
+	(ods_bluez_cancel_get_client_socket):
+	* src/ods-bluez.h:
+	* src/ods-manager.c (client_socket_connected_cb),
+	(create_bluetooth_session_full):
+	* src/ods-session.c (ods_session_class_init):
+	Use NOKIAFTP_UUID for CMD_CONNECT if discovered via SDP
+
+====== obex-data-server-0.4.4 ======
+
+2009-02-09  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* src/ods-usb.c (find_obex_service_descriptor):
+	* src/ods-usb.h:
+	Don't depend on openobex 1.4 for USB interface discovery
+
+====== obex-data-server-0.4.3 ======
+
+2009-02-08  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* dbus-api.txt:
+	Clarify how non-transfer methods work in documentation
+
+2009-02-08  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	Require only openobex 1.3 if usb support is disabled
+
+2009-02-08  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	Bump openobex dependency to 1.4 (needed for new USB stuff)
+
+2009-02-06  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-obex.c (ods_obex_transfer_get_info):
+	Add OBEXCommand to transfer info for distinguishing between 
+	PUT and GET requests
+
+2009-02-06  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (ods_bluez_cancellable_free),
+	(sdp_search_completed_cb), (sdp_initiate_search),
+	(sdp_connect_watch), (ods_bluez_get_client_socket):
+	* src/ods-bluez.h:
+	* src/ods-obex.c (ods_obex_writestream):
+	Fix Nokia UUID workaround (this was apparently broken in 0.4)
+
+2009-01-31  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* src/Makefile.am:
+	* src/ods-manager.c (ods_manager_get_usb_interfaces_num),
+	(ods_manager_get_usb_interface_info):
+	* src/ods-session.c (ods_session_set_transfer_hints):
+	* src/ods-usb.c (find_eps), (find_obex_data_interface),
+	(get_intf_string), (check_intf), (find_obex_service_descriptor),
+	(ods_usbobex_find_interfaces), (ods_usbobex_free_interface),
+	(ods_usbobex_free_interfaces):
+	* src/ods-usb.h:
+	* test/ods-dbus-test.c (session_connected_cb):
+	* test/ods-session-test.py:
+	Make USB interface discovery independent from openobex to be able to
+	export more information (thanks to Bastien Nocera), check for errors
+	in Session.SetTransferHints
+
+2009-01-27  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c:
+	* src/ods-session.c (ods_session_set_transfer_hints):
+	* src/ods-session.h:
+	* src/ods-session.xml:
+	Export RemoteCopy and RemoteMove methods through DBus,
+	add function names to LOCK/UNLOCK debug messages
+
+2009-01-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_put_full), (ods_obex_put),
+	(ods_obex_put_image), (ods_obex_put_linked_thumbnail),
+	(ods_obex_put_linked_attachment), (ods_obex_remote_display):
+	* src/ods-obex.h:
+	* src/ods-session.c (reset_transfer_hints), (ods_session_init),
+	(ods_session_copy_remote_file_full), (ods_session_send_file_ext),
+	(ods_session_set_transfer_hints), (ods_session_delete_remote_file):
+	* src/ods-session.h:
+	* src/ods-session.xml:
+	Further work on FIFO support, fix up Session.SetTransferHints
+
+2009-01-16  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-session.c (ods_session_copy_remote_file_full):
+	Fix Session.CopyRemoteFile.. to allow empty local_path
+
+2008-11-30  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-error.c (ods_error_get_type), (ods_error_err2gerror):
+	* src/ods-error.h:
+	* src/ods-manager.c (ods_manager_create_bluetooth_server):
+	* src/ods-obex.c (get_target_size_and_time),
+	(ods_obex_transfer_close), (ods_obex_disconnect), (fifo_watch),
+	(ods_obex_readstream), (ods_obex_writestream), (ods_obex_get),
+	(ods_obex_srv_get), (ods_obex_put_full), (ods_obex_srv_setpath),
+	(ods_obex_put_image), (ods_obex_put_linked_thumbnail),
+	(ods_obex_put_linked_attachment):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (obex_suspend_request),
+	(obex_request_put), (ods_server_session_accept),
+	(ods_server_session_reject), (ods_server_session_cancel_internal):
+	* src/ods-session.c (local_file_test), (reset_transfer_hints),
+	(ods_session_init), (ods_session_finalize),
+	(ods_session_copy_remote_file_full), (ods_session_get_by_type),
+	(ods_session_send_file_ext), (ods_session_set_transfer_hints),
+	(ods_session_delete_remote_file),
+	(ods_session_put_linked_attachment):
+	* src/ods-session.h:
+	* src/ods-session.xml:
+	Add support for using FIFOs instead of regular files for transfers,
+	add Session.SetTransferHints for specifying different name, size and
+	modification time when sending from FIFO
+
+2008-11-27  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (rfcomm_connect), (ods_bluez_get_client_socket),
+	(ods_bluez_cancel_get_client_socket):
+	* src/ods-bluez.h:
+	Properly close RFCOMM socket in Manager.CancelSessionConnect
+
+2008-11-27  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_put):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (obex_request_put):
+	Fix emmision of ServerSession.TransferCompleted signal when suspending
+	small file transfer
+
+2008-11-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (obex_request_cancelled),
+	(obex_suspend_request), (obex_request_put), (obex_event):
+	Fix request suspending for very small files
+
+2008-11-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_transfer_new):
+	Reset obex_context->Cancelled for subsequent transfers
+
+2008-11-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (ods_server_session_cancel):
+	Properly return from ServerSession.Cancel when no operation in progress
+
+2008-11-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-session.c (ods_session_cancel):
+	Properly return from Session.Cancel when no operation in progress
+
+2008-11-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	Fix ErrorOccurred in docs (double 'r')
+
+2008-11-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-error.c (ods_error_get_type), (ods_error_obexrsp2gerror):
+	* src/ods-error.h:
+	Add UnsupportedMediaType error and fix another typo
+
+2008-11-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-error.c (ods_error_err2gerror):
+	Fix a typo in error conversion code
+
+2008-11-15  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_put):
+	Fix a nasty crash when type header is not received
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (server_closed_cb):
+	Dispose server when it is Closed by client app (this was broken)
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_put):
+	* src/ods-server-session.c (obex_transfer_data_exchange_done),
+	(obex_request_put), (obex_event):
+	Fix emission of TransferStarted for PUT requests in ServerSession
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server.c (ods_server_finalize):
+	Properly close server socket
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (obex_transfer_data_exchange_done),
+	(obex_request_put), (obex_event):
+	Debug output when emitting TransferStarted signal
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (obex_request_cancelled), (obex_event):
+	* src/ods-session.c (obex_request_cancelled), (obex_event):
+	Fix cancelling of incoming transfers (fixes #147)
+
+2008-11-14  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-server-session.c (ods_server_session_cancel_internal):
+	ServerSession.Cancel now also rejects incoming transfer if it is
+	suspended (fixes #146)
+
+====== obex-data-server-0.4.2 ======
+
+2008-11-01  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-error.c (ods_error_get_type), (ods_error_err2gerror),
+	(ods_error_obexrsp2gerror):
+	* src/ods-error.h:
+	* src/ods-session.c (obex_request_done),
+	(ods_session_remote_action), (ods_session_remote_copy),
+	(ods_session_remote_move):
+	Implement RemoteCopy and RemoteMove methods in Session, add more errors
+	corresponding to OBEX responses
+
+2008-10-31  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_get):
+	Another fix for ARM build (#144)
+
+2008-10-30  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	Use Wand.pc for ImageMagick PKG_CHECK since ImageMagick.pc links only to
+	MagickCore in some distros
+
+2008-10-29  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_put):
+	* src/ods-server-session.c (obex_request_put):
+	Avoid executing obex_request_put in ServerSession several times for the
+	same transfer
+
+2008-10-27  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (create_bluetooth_session_full):
+	Avoid printing out NULL (fixes #143)
+
+2008-10-26  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	Check for Bluez 3.34 or later since older versions don't have
+	sdp_extract_pdu_safe and sdp_extract_seqtype_safe functions
+
+====== obex-data-server-0.4.1 ======
+
+2008-10-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_action):
+	* src/ods-obex.h:
+	Add CMD_ACTION function (no exposure in API yet)
+
+2008-10-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_put):
+	* src/ods-server-session.c (obex_transfer_data_exchange_done),
+	(obex_event):
+	* test/ods-server-test.py:
+	Fix TransferStarted signal emission in ServerSession (hopefully this 
+	finally fixes #140)
+
+2008-10-23  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-server-session.c (ods_server_session_cancel):
+	* src/ods-session.c (ods_session_setpath),
+	(ods_session_get_by_type), (ods_session_delete_remote_file),
+	(ods_session_remote_display_full), (ods_session_cancel):
+	Do not use g_assert for checking if DBus context is set in Session and
+	ServerSession methods, instead return Failed error (fixes #142)
+
+2008-10-23  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (setup_transport),
+	(ods_server_session_set_property), (ods_server_session_class_init):
+	* src/ods-server.c (server_session_fd_assign), (connect_callback):
+	Ensure a time gap between Server.SessionCreated signal and 
+	ServerSession.TransferStarted signal (fixes a race condition when app misses
+	TransferStarted signal; bugs #129, #140)
+
+====== obex-data-server-0.4 ======
+
+2008-10-17  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.h:
+	* test/Makefile.am:
+	Increase default RX MTU (32767), distribute ods-bip-test.py
+
+2008-10-17  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (ods_manager_create_usb_session):
+	* src/ods-session.c (ods_session_setup_usbtransport):
+	Small fixes for USB transport
+
+2008-10-11  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-manager.c (ods_manager_session_list_add),
+	(string2service), (create_bluetooth_session_full),
+	(ods_manager_create_usb_session), (ods_manager_dummy_obex_event),
+	(ods_manager_get_usb_interfaces_num),
+	(ods_manager_get_usb_interface_info):
+	* src/ods-manager.h:
+	* src/ods-manager.xml:
+	* src/ods-obex.c (ods_obex_send):
+	* src/ods-session.c (emit_connect_result_internal),
+	(emit_disconnected), (obex_usbevent),
+	(ods_session_setup_fdtransport), (ods_session_setup_usbtransport),
+	(ods_session_set_property), (ods_session_get_property),
+	(ods_session_class_init), (ods_session_new),
+	(ods_process_usb_input):
+	* src/ods-session.h:
+	Add support for USB transport (sessions only): Thanks to Alex Kanavin for
+	the complete patch
+
+2008-10-09  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-bluez.c (client_socket_connect_cb), (rfcomm_connect),
+	(sdp_get_channel), (sdp_search_completed_cb),
+	(sdp_search_process_cb), (sdp_connect_watch),
+	(ods_bluez_get_client_socket),
+	(ods_bluez_cancel_get_client_socket):
+	* src/ods-bluez.h:
+	* src/ods-manager.c (client_socket_connected_cb),
+	(create_bluetooth_session_full), (ods_manager_get_session_info):
+	Add BluetoothChannel (RFCOMM channel used for session) to SessionInfo
+
+2008-10-09  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-common.c (ods_hash_table_keys2strv):
+	* src/ods-common.h:
+	* src/ods-manager.c (ods_manager_get_session_list),
+	(ods_manager_get_server_list), (ods_manager_get_version):
+	* src/ods-manager.h:
+	* src/ods-manager.xml:
+	* src/ods-obex.c (ods_obex_connect_done), (ods_obex_srv_connect):
+	* src/ods-server.c (ods_server_get_server_session_list):
+	* src/ods-server.h:
+	* src/ods-server.xml:
+	Add Manager.GetVersion(), Manager.GetSessionList(), Manager.GetServerList(),
+	Server.GetServerSessionList(); cleanup obex connect functions
+
+2008-10-05  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-imaging-helpers.c (ods_imaging_resize_image):
+	* src/ods-server-session.c (send_image_handle), (obex_request_put),
+	(obex_event):
+	* test/ods-bip-test.py:
+	Fix crash when BIP server receives small image, update ods-bip-test.py
+	to handle transformations, fix gdk-pixbuf fill transformation
+
+2008-10-05  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* src/Makefile.am:
+	* src/ods-imaging-helpers.c (format_to_encoding),
+	(encoding_to_pixbuf_format), (ods_imaging_pixbuf_new_with_format),
+	(ods_imaging_get_image_info), (ods_imaging_resize_image),
+	(ods_imaging_get_image_info_async),
+	(ods_imaging_resize_image_async):
+	* src/ods-main.c (main):
+	Make it possible to use gdk-pixbuf instead of ImageMagick for BIP
+	operations (thanks to Bastien Nocera for the patch)
+
+2008-10-04  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-imaging-helpers.c (ods_imaging_get_image_info),
+	(ods_imaging_resize_image):
+	Use g_stat instead of stat
+
+2008-10-03  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (client_socket_connect_cb), (sdp_session_get),
+	(sdp_session_list_add), (sdp_session_list_remove),
+	(add_bin_service_record), (ods_bluez_remove_service_record),
+	(ods_bluez_finalize):
+	* src/ods-bluez.h:
+	* src/ods-manager.c (ods_manager_finalize):
+	Fix SDP stuff for servers, properly close RFCOMM sockets when connecting
+	fails
+
+2008-09-23  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (sdp_connect_watch),
+	(ods_bluez_get_client_socket):
+	* src/ods-manager.c (create_bluetooth_session_full):
+	Make SDP connection non blocking, eliminate one dead end, make errors
+	more informative
+
+2008-09-23  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* src/ods-bluez.c (ods_bluez_cancellable_free), (rfcomm_connect),
+	(sdp_get_channel), (sdp_search_completed_cb),
+	(sdp_search_process_cb), (sdp_initiate_search),
+	(sdp_connect_watch), (ods_bluez_get_client_socket),
+	(ods_bluez_cancel_get_client_socket),
+	(ods_bluez_get_server_socket), (add_bin_service_record),
+	(ods_bluez_add_service_record), (ods_bluez_remove_service_record):
+	* src/ods-bluez.h:
+	* src/ods-manager.c (server_started_cb), (server_stopped_cb),
+	(pattern2service), (string2service),
+	(create_bluetooth_session_full), (cancel_session_connect),
+	(ods_manager_create_bluetooth_server), (ods_manager_finalize):
+	Rewrote all SDP client code using libbluetooth making ods
+	Bluez 3.x and 4.x compatible out of the box
+
+2008-09-12  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-session.c (obex_request_done):
+	Fix memory leak when returning result of GetCapability,
+	GetImagingCapabilities or GetFolderListing
+
+2008-09-12  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_srv_new_file), (ods_obex_get):
+	Use proper 0666 mode when creating files (fixes #128)
+
+2008-09-12  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-error.c (ods_error_err2gerror):
+	* src/ods-manager.c (session_connect_result_cb):
+	* src/ods-obex.c (ods_obex_readstream), (ods_obex_writestream):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (obex_transfer_data_exchange_done),
+	(obex_event), (ods_server_session_cancel_internal),
+	(ods_server_session_cancel):
+	* src/ods-server-session.h:
+	* src/ods-server.c (server_session_cancel),
+	(server_session_finalize):
+	* src/ods-session.c (obex_transfer_data_exchange_done),
+	(obex_request_done), (obex_event), (ods_session_cancel_internal),
+	(ods_session_cancel):
+	* src/ods-session.h:
+	* test/ods-bip-test.py:
+	Rework cancel operation (both server and session wise); the new code
+	works better when cancelling incoming transfer; link error handling fix
+	for ods-bip-test.py
+
+2008-08-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-main.c (main):
+	Add --version option, properly free GOptionContext
+
+2008-08-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (client_socket_connected_cb):
+	* src/ods-session.c (obex_io_callback), (ods_session_check_state),
+	(ods_session_init), (ods_session_connect_internal),
+	(ods_session_disconnect), (ods_session_close):
+	Add SESSION_STATE_INIT to Session to better handle Session connection state
+
+2008-08-24  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (emit_disconnected),
+	(ods_server_session_init),
+	(ods_server_session_disconnect_internal):
+	* src/ods-server-session.h:
+	* src/ods-session.c (emit_connect_result_internal),
+	(emit_disconnected), (obex_io_callback), (obex_request_done),
+	(ods_session_setup_transport), (ods_session_init),
+	(ods_session_disconnect_internal):
+	* src/ods-session.h:
+	Use g_strdup_printf for generating object paths, fix CONNECT_RESULT_INTERNAL
+	and DISCONNECTED signal emission on Session and ServerSession objects
+
+2008-08-20  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_transfer_new):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (obex_event),
+	(ods_server_session_accept), (ods_server_session_reject):
+	* test/ods-server-test.py:
+	Make Accept/Reject work without patched openobex, update ods-server-test.py
+	to be able to interactively accept/reject transfers
+
+2008-08-18  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-manager.c (create_bluetooth_session_full):
+	* src/ods-server-session.c (remote_display_action):
+	* src/ods-session.c (ods_session_set_property),
+	(ods_session_get_property), (ods_session_class_init),
+	(ods_session_connect_internal), (get_image_info_cb),
+	(ods_session_get_image_info), (ods_session_remote_display_full):
+	* src/ods-session.h:
+	* src/ods-session.xml:
+	* test/ods-bip-test.py:
+	* test/ods-server-test.py:
+	Add Session.GetImageInfo method, fix Target UUID handling, fix RemoteDisplay
+	Session implementation, make ods-bip-test.py a full blown BIP ImagePush
+	testing app, update option parsing for ods-server-test.py
+
+2008-08-12  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-obex.c (ods_obex_transfer_get_info):
+	* src/ods-server-session.c (obex_request_put), (obex_event),
+	(ods_server_session_set_property),
+	(ods_server_session_get_property), (ods_server_session_class_init),
+	(ods_server_session_new):
+	* src/ods-server-session.h:
+	* src/ods-server.c (connect_callback), (ods_server_set_option):
+	* src/ods-server.h:
+	* src/ods-server.xml:
+	* test/ods-server-test.py:
+	Introduce Server.SetOption method, finishing touches for BIP server
+	support, don't include Time in TransferInfo when no modtime available
+	(differs from 0.3 behaviour), include Type in TransferInfo when available,
+	update ods-server-test.py for better BIP handling
+
+2008-08-09  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (add_service_record_internal):
+	Fix BIP SDP record
+
+2008-08-06  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-server-session.c (remote_display_action), (obex_event):
+	Properly send image_handle along with last packet for BIP PutImage
+
+2008-08-06  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-obex.c (ods_obex_srv_remote_display):
+	* src/ods-server-session.c (remote_display_action), (obex_event),
+	(ods_server_session_class_init):
+	* src/ods-server-session.h:
+	* src/ods-server-session.xml:
+	Implement RemoteDisplay server-side handling, add RemoteDisplayRequested
+	signal to ServerSession
+
+2008-08-05  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-bluez.c (add_service_record_internal):
+	* src/ods-obex.c (ods_obex_transfer_add_info),
+	(ods_obex_srv_connect), (ods_obex_readstream), (ods_obex_srv_get):
+	* src/ods-server-session.c (image_list_add), (obex_event),
+	(ods_server_session_init), (ods_server_session_finalize):
+	First working BIP Image Push server (does not return image handle properly)
+
+2008-08-05  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_transfer_get_info),
+	(ods_obex_put_image), (ods_obex_put_linked_attachment):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (ods_server_session_get_transfer_info):
+	* src/ods-session.c (ods_session_get_transfer_info):
+	Add extended info for Imaging Initiator functionality, rework GetTransferInfo
+	on Session and ServerSession object
+
+2008-08-04  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-obex.c (ods_obex_transfer_close),
+	(ods_obex_transfer_add_info), (ods_obex_put_full),
+	(ods_obex_srv_put_image), (ods_obex_srv_put_linked_thumbnail),
+	(ods_obex_srv_put_linked_attachment),
+	(ods_obex_srv_remote_display), (ods_obex_srv_put):
+	* src/ods-obex.h:
+	* src/ods-server-session.c (obex_event):
+	* src/ods-session.c (ods_session_copy_remote_file_full),
+	(ods_session_copy_remote_file),
+	(ods_session_copy_remote_file_by_type),
+	(ods_session_send_file_ext), (ods_session_send_file),
+	(ods_session_get_transfer_info):
+	* src/ods-session.h:
+	* src/ods-session.xml:
+	Add SendFileExt and CopyRemoteFileByType to Session (bugs #71, #112),
+	continue work on BIP server-side functions
+
+2008-08-01  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-obex.c (ods_obex_transfer_close), (ods_obex_put_full),
+	(ods_obex_srv_put_image), (ods_obex_srv_put_linked_thumbnail),
+	(ods_obex_srv_put_linked_attachment),
+	(ods_obex_srv_remote_display), (ods_obex_srv_put):
+	* src/ods-obex.h:
+	Start BIP server-side function implementation
+
+2008-08-01  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-imaging-helpers.c (img_parse_element_start),
+	(parse_descriptor), (parse_image_descriptor),
+	(parse_attachment_descriptor):
+	* src/ods-imaging-helpers.h:
+	New functions for parsing BIP Image and Attachment descriptors 
+
+2008-07-30  Tadas Dailyda  <tadas@dailyda.com>
+
+	* src/ods-manager.c (server_started_cb),
+	(ods_manager_create_bluetooth_server):
+	Add BIP SDP record for Server
+
+2008-07-29  Tadas Dailyda  <tadas@dailyda.com>
+
+	* configure.in:
+	* data/Makefile.am:
+	* data/capability.xml:
+	* data/imaging_capabilities.xml:
+	* src/Makefile.am:
+	* src/ods-capabilities.c (ods_get_variable),
+	(ods_insert_variables), (ods_get_capability),
+	(ods_get_imaging_capabilities):
+	* src/ods-capabilities.h:
+	* src/ods-obex.c (ods_obex_srv_get):
+	Add x-obex/capability and x-bt/img-capabilities XML objects support
+
+2008-07-25  Tadas Dailyda  <tadas@dailyda.com>
+
+	* dbus-api.txt:
+	* src/ods-bluez.c (ods_bluez_cancellable_free),
+	(client_socket_connect_cb), (rfcomm_connect),
+	(get_remote_service_record_cb), (get_remote_service_handles_cb),
+	(ods_bluez_get_client_socket),
+	(ods_bluez_cancel_get_client_socket):
+	* src/ods-bluez.h:
+	* src/ods-error.c (ods_error_get_type):
+	* src/ods-error.h:
+	* src/ods-manager.c (ods_manager_session_list_add),
+	(client_socket_connected_cb), (create_bluetooth_session_full),
+	(cancel_session_connect), (ods_manager_cancel_session_connect),
+	(ods_manager_session_finalize):
+	* src/ods-manager.h:
+	* src/ods-manager.xml:
+	* src/ods-session.c (obex_io_callback), (ods_session_disconnect),
+	(ods_session_close):
+	* test/ods-dbus-test.c (session_connected_cb),
+	(create_bluetooth_session):
+	Implement CancelSessionConnect for Manager, remove unnecessary
+	call to g_source_remove in OdsSession
+	
+2008-07-25 00:08  Tadas Dailyda
+
+	* ChangeLog, NEWS: Generate ChangeLog with svn2cl, properly use
+	  NEWS file
+
+2008-07-23 20:00  Tadas Dailyda
+
+	* ChangeLog, configure.in, dbus-api.txt, src/ods-imaging-helpers.c,
+	  test/ods-bip-test.py: Fix optional BIP support, merge ChangeLog
+	  from 0.3.4
+
+2008-07-21 16:18  Tadas Dailyda
+
+	* data/Makefile.am, data/obex-data-server.service.in: change dbus
+	  service file accordingly when --enable-system-config is used
+
+2008-07-21 15:31  Tadas Dailyda
+
+	* configure.in, src/ods-imaging-helpers.c, src/ods-main.c,
+	  src/ods-session.c: Make ImageMagick and threading support for BIP
+	  optional (--disable-image-magick)
+
+2008-07-21 12:17  Tadas Dailyda
+
+	* configure.in: minor change for (#98) build warnings
+
+2008-07-21 12:11  Tadas Dailyda
+
+	* src/ods-obex.c: Fix signed/unsigned comparison
+
+2008-07-21 11:51  Tadas Dailyda
+
+	* src/ods-imaging-helpers.c, src/ods-obex.c, src/ods-obex.h,
+	  src/ods-session.c: set target_size for BIP transfers
+
+2008-07-18 22:53  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-manager.c,
+	  test/ods-bip-test.py: First somewhat working ImagePush client
+
+2008-07-18 17:15  Tadas Dailyda
+
+	* src/ods-common.c: really fix bad utf conversion bug
+
+2008-07-18 16:42  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-common.c, src/ods-imaging-helpers.c,
+	  src/ods-imaging-helpers.h, src/ods-marshal.list, src/ods-obex.c,
+	  src/ods-session.c, src/ods-session.h, src/ods-session.xml:
+	  Implement ImageHandleReceived signal, send thumbnail when BIP
+	  responder requests, fix bad utf conversion bug
+
+2008-07-17 16:20  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-imaging-helpers.c, src/ods-obex.c,
+	  src/ods-obex.h, src/ods-session.c, src/ods-session.h,
+	  src/ods-session.xml: Add PutLinkedAttachment to Session, fix
+	  RemoteDisplay functions
+
+2008-07-16 14:44  Tadas Dailyda
+
+	* configure.in, dbus-api.txt, src/Makefile.am, src/ods-bluez.c,
+	  src/ods-bluez.h, src/ods-imaging-helpers.c,
+	  src/ods-imaging-helpers.h, src/ods-main.c, src/ods-manager.c,
+	  src/ods-session.c, src/ods-session.h, src/ods-session.xml:
+	  PutImage, PutImageResized, imaging-feature property for
+	  OdsSession, fix session socket binding/closing, disable Session
+	  functions according to used profile, link against gthread, update
+	  API docs with BIP functions, other fixes
+
+2008-07-10 18:12  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-common.h, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-manager.xml, src/ods-obex.h,
+	  src/ods-session.c, src/ods-session.h, src/ods-session.xml:
+	  Further SDP record registering fixes, refactoring of OdsSession
+	  and addition of BIP RemoteDisplay functions to OdsSession
+
+2008-07-10 12:18  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-obex.h: Fix SDP record registering (bug
+	  #102)
+
+2008-07-09 22:02  Tadas Dailyda
+
+	* src/ods-obex.c, src/ods-obex.h: Add BIP RemoteDisplay function
+
+2008-07-09 18:58  Tadas Dailyda
+
+	* configure.in, src/Makefile.am, src/ods-imaging-helpers.c,
+	  src/ods-imaging-helpers.h: Implement BIP image transformation
+	  functions (uses ImageMagick)
+
+2008-07-04 15:05  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-session.c, src/ods-session.h,
+	  src/ods-session.xml, test/ods-dbus-test.c: BIP
+	  GetImagingCapabilities()
+
+2008-07-04 09:29  Tadas Dailyda
+
+	* src/ods-manager.c, src/ods-session.c: BIP testing stuff
+
+2008-07-03 19:24  Tadas Dailyda
+
+	* src/Makefile.am, src/ods-bluez.c, src/ods-imaging-descriptors.c,
+	  src/ods-imaging-descriptors.h, src/ods-imaging-helpers.c,
+	  src/ods-imaging-helpers.h, src/ods-obex.c, src/ods-obex.h: Add
+	  BIP PutImage, PutLinkedThumbnail and PutLinkedAttachment
+
+2008-07-03 15:09  Tadas Dailyda
+
+	* src/ods-bluez.c: Fix socket condition checking in session
+	  connection
+
+2008-07-03 14:14  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-manager.c: Unhardcode
+	  BIP SDP data, some checks
+
+2008-07-02 00:23  Tadas Dailyda
+
+	* configure.in, dbus-api.txt, src/ods-bluez.c, src/ods-error.c,
+	  src/ods-error.h, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-manager.xml, src/ods-marshal.list, src/ods-session.c,
+	  src/ods-session.h, src/ods-session.xml, test/ods-dbus-test.c:
+	  Redesign Session connection (bugs #19, #53)
+
+2008-07-01 06:52  Tadas Dailyda
+
+	* data/Makefile.am, data/obex-data-server.1: Add manbearpig :)
+
+2008-06-27 17:13  Tadas Dailyda
+
+	* ChangeLog, configure.in, src/ods-server.c: merge ods-0_3 branch
+
+2008-06-27 15:16  Tadas Dailyda
+
+	* src/ods-server-session.c, src/ods-session.c: close session
+	  sockets
+
+2008-06-27 15:13  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h: Add more BIP SDP stuff
+
+2008-06-27 13:51  Tadas Dailyda
+
+	* src/Makefile.am, src/ods-bluez.c, src/ods-common.h,
+	  src/ods-folder-listing.c, src/ods-imaging-descriptors.c,
+	  src/ods-imaging-descriptors.h, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-obex.h: add BIP stuff
+
+2008-06-26 21:22  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-manager.c: Update SessionInfo and
+	  ServerInfo in Manager
+
+2008-06-26 21:05  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-bluez.c, src/ods-bluez.h,
+	  src/ods-manager.c, src/ods-manager.h, src/ods-manager.xml,
+	  test/ods-dbus-test.c, test/ods-session-test.py: Allow to choose
+	  hci device when creating Bluetooth Session (#52) (API CHANGE)
+
+2008-06-25 18:56  Tadas Dailyda
+
+	* ChangeLog, configure.in: Final fixes for 0.3.2
+
+2008-06-19 12:02  Tadas Dailyda
+
+	* ChangeLog, configure.in: Prepare for 0.3.2 release
+
+2008-06-18 15:34  Tadas Dailyda
+
+	* src/ods-manager.c, src/ods-session.c, test/ods-dbus-test.c: Final
+	  memory leak fixes (bugs #46, #74)
+
+2008-06-18 14:24  Tadas Dailyda
+
+	* src/ods-common.h: Add BIP UUIDs
+
+2008-06-18 12:44  Tadas Dailyda
+
+	* src/ods-server-session.c: check current path permission before
+	  accepting PUT (bug #88)
+
+2008-06-17 21:16  Tadas Dailyda
+
+	* src/ods-obex.c, src/ods-server-session.c, src/ods-session.c: Fix
+	  session/server-session finalizing
+
+2008-06-05 15:19  Tadas Dailyda
+
+	* src/ods-obex.c: Enable sending empty NAME header for SETPATH
+
+2008-06-02 13:02  Tadas Dailyda
+
+	* src/ods-common.c, src/ods-error.c, src/ods-error.h,
+	  src/ods-obex.c: Improve server-side error reporting, check for
+	  connection id (fixes #90, #92)
+
+2008-05-30 20:54  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-common.c, src/ods-common.h,
+	  src/ods-manager.c: portability fixes (#91)
+
+2008-05-30 18:21  Tadas Dailyda
+
+	* src/ods-server.c: Fix #83 for real
+
+2008-05-29 17:56  Tadas Dailyda
+
+	* src/ods-manager.c: small fix
+
+2008-05-28 21:16  Tadas Dailyda
+
+	* src/ods-server.c: small fix
+
+2008-05-28 21:05  Tadas Dailyda
+
+	* src/ods-main.c, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-server.c: don't use GObject dispose in manager, another
+	  fix for #83
+
+2008-05-28 13:43  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-common.c,
+	  src/ods-common.h, src/ods-error.c, src/ods-error.h,
+	  src/ods-folder-listing.c, src/ods-folder-listing.h,
+	  src/ods-main.c, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  src/ods-server-session.h, src/ods-server.c, src/ods-server.h,
+	  src/ods-session.c, src/ods-session.h, test/ods-dbus-test.c: Fix
+	  #85, #86; update copyright info and mode lines
+
+2008-05-27 14:03  Tadas Dailyda
+
+	* src/ods-manager.c: Fix crash on exit (#83, patch by Larry)
+
+2008-05-22 21:21  Tadas Dailyda
+
+	* src/ods-folder-listing.c: use UTF8 filenames in folder listing
+	  (#78)
+
+2008-05-22 21:00  Tadas Dailyda
+
+	* src/ods-manager.c, src/ods-server.c, src/ods-server.h: Fix #77
+
+2008-05-22 20:45  Tadas Dailyda
+
+	* src/ods-server-session.c: disable CMD_SETPATH for OPP (patch by
+	  Larry)
+
+2008-05-21 23:01  Tadas Dailyda
+
+	* src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c: Check
+	  TARGET headers (patch by Larry Jr)
+
+2008-05-19 17:53  Tadas Dailyda
+
+	* src/ods-bluez.c: Fix ods-bluez.c
+
+2008-05-16 12:31  Tadas Dailyda
+
+	* src/ods-manager.c: don't try to remove SDP record when it's not
+	  registered (patch by Claudio Takahasi; #79)
+
+2008-05-13 23:38  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-common.h, src/ods-error.c,
+	  src/ods-manager.h, src/ods-session.c: implement Nokia FTP
+	  workaround (#55), fix ods-error.c, fix session path handling
+
+2008-05-12 22:21  Tadas Dailyda
+
+	* src/ods-obex.c: Fix one more invalid pointer free
+
+2008-05-12 22:08  Tadas Dailyda
+
+	* src/ods-obex.c: fix freeing invalid pointer (patch by Vinicius
+	  Gomes)
+
+2008-05-12 19:52  Tadas Dailyda
+
+	* src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  test/ods-server-test.py: Fix Accept/Reject #54 (only works with
+	  patched openobex-cvs)
+
+2008-05-07 17:42  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-common.c, src/ods-common.h,
+	  src/ods-obex.c: fix for non-UTF8 locales (bug #67)
+
+2008-04-01 12:46  Tadas Dailyda
+
+	* ChangeLog: update changelog
+
+2008-04-01 12:42  Tadas Dailyda
+
+	* ChangeLog, configure.in: Prepare for 0.3.1 release
+
+2008-04-01 12:30  Tadas Dailyda
+
+	* src/ods-session.c, test/ods-dbus-test.c, test/ods-server-test.py:
+	  Revert changes unneeded for upcoming bugfix release
+
+2008-03-25 09:56  Tadas Dailyda
+
+	* src/ods-session.c, test/ods-dbus-test.c: a proof for #53
+
+2008-03-12 17:13  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-error.c, src/ods-error.h,
+	  src/ods-session.c, test/ods-server-test.py: Possibly fix #53
+
+2008-03-07 15:16  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-bluez.c, src/ods-common.h,
+	  src/ods-manager.c: Support for PBAP server (#60)
+
+2008-03-07 00:15  Tadas Dailyda
+
+	* src/ods-session.c: bah
+
+2008-03-06 23:49  Tadas Dailyda
+
+	* dbus-api.txt: update docs
+
+2008-03-06 20:47  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-manager.c, src/ods-session.c: Some small
+	  changes
+
+2008-03-05 20:23  Tadas Dailyda
+
+	* src/ods-main.c: use setlocale
+
+2008-03-05 20:13  Tadas Dailyda
+
+	* configure.in, src/ods-server-session.c, src/ods-session.c: maybe
+	  fix #57 and fix naming issue in configure.in
+
+2008-03-02 22:42  Tadas Dailyda
+
+	* src/ods-session.c: revert patch
+
+2008-03-02 15:59  Tadas Dailyda
+
+	* src/ods-session.c: Fix #57
+
+2008-03-01 19:41  Tadas Dailyda
+
+	* src/ods-server-session.c: fix possible bug
+
+2008-02-29 23:47  Tadas Dailyda
+
+	* test/ods-server-test.py: update ods-server-test.py
+
+2008-02-21 22:40  Tadas Dailyda
+
+	* ChangeLog: update changelog
+
+2008-02-21 22:35  Tadas Dailyda
+
+	* configure.in, dbus-api.txt, src/ods-bluez.c, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-manager.xml, src/ods-server.c,
+	  src/ods-server.h, src/ods-server.xml, test/ods-server-test.py:
+	  move require_pairing to Manager.CreateBluetoothServer, memory
+	  fixes, prepare for 0.3
+
+2008-02-12 17:19  Tadas Dailyda
+
+	* ChangeLog, configure.in, src/ods-folder-listing.c: exclude dot
+	  files from folder listings, prepare for 0.2 release
+
+2008-02-12 16:38  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-server-session.c, src/ods-server-session.h,
+	  src/ods-server-session.xml: Fix Accept function
+
+2008-02-12 16:19  Tadas Dailyda
+
+	* configure.in, data/Makefile.am, src/ods-bluez.c, src/ods-bluez.h,
+	  src/ods-common.c, src/ods-common.h, src/ods-error.c,
+	  src/ods-error.h, src/ods-folder-listing.c,
+	  src/ods-folder-listing.h, src/ods-main.c, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-obex.c, src/ods-obex.h,
+	  src/ods-server-session.c, src/ods-server-session.h,
+	  src/ods-server.c, src/ods-server.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c, test/ods-server-test.py:
+	  implement Accept/Reject for ServerSession, make dbus system
+	  config file optional, fix licencing info
+
+2008-02-11 17:59  Tadas Dailyda
+
+	* src/ods-folder-listing.c, src/ods-folder-listing.h,
+	  src/ods-manager.c, src/ods-obex.c, src/ods-obex.h,
+	  src/ods-server-session.c, src/ods-server-session.h,
+	  src/ods-server.c, src/ods-server.h: Fix allow_write==false
+	  handling, fix SDP record for server lifetime
+
+2008-02-11 15:54  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-server-session.c, src/ods-server-session.h,
+	  src/ods-server-session.xml, src/ods-server.c, src/ods-server.h,
+	  src/ods-server.xml, test/ods-server-test.py: Implement
+	  allow_write and require_pairing for Server.Start()
+
+2008-02-11 04:13  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-server-session.h, src/ods-server.h,
+	  src/ods-session.h, test/Makefile.am: make object paths lowercase,
+	  distribute python tests
+
+2008-02-06 23:16  Tadas Dailyda
+
+	* dbus-api.txt: doc update
+
+2008-02-06 22:30  Tadas Dailyda
+
+	* src/ods-bluez.c: more mem fixes
+
+2008-02-06 21:27  Tadas Dailyda
+
+	* Makefile.am, configure.in, src/ods-bluez.c, src/ods-manager.c,
+	  src/ods-manager.xml, src/ods-server.c, src/ods-server.xml,
+	  test/ods-dbus-test.c: Use o type signature, properly free memory
+	  for D-Bus calls, prepare for 0.1
+
+2008-02-06 11:51  Tadas Dailyda
+
+	* dbus-api.txt: doc update
+
+2008-02-06 11:45  Tadas Dailyda
+
+	* src/ods-bluez.c: more memory handling fixes
+
+2008-02-06 10:39  Tadas Dailyda
+
+	* src/ods-manager.c, test/ods-dbus-test.c: smth
+
+2008-02-06 00:08  Tadas Dailyda
+
+	* src/Makefile.am, src/ods-bluez.c, src/ods-bluez.h,
+	  src/ods-manager.c, src/ods-session.c: Patch from Manuel Naranjo
+	  (#34) and some memory handling fixes
+
+2008-02-04 16:20  Tadas Dailyda
+
+	* src/ods-bluez.c: fix #41
+
+2008-01-24 18:00  Tadas Dailyda
+
+	* configure.in, dbus-api.txt, src/ods-server-session.xml,
+	  src/ods-session.c, src/ods-session.h, src/ods-session.xml,
+	  test/ods-dbus-test.c: Fix stuff that became broken because of API
+	  change
+
+2008-01-24 16:21  Tadas Dailyda
+
+	* configure.in, src/ods-main.c: Fix #25
+
+2008-01-24 15:28  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-folder-listing.c, src/ods-marshal.list,
+	  src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  src/ods-server-session.h, src/ods-session.c,
+	  test/ods-dbus-test.c: Fix #20, #32
+
+2008-01-24 00:56  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-obex.c: minor cleanup
+
+2008-01-23 22:08  Tadas Dailyda
+
+	* src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  src/ods-session.c: fix #20 (hopefully :))
+
+2008-01-23 17:15  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-session.c: Fix ChangeCurrentFolder in
+	  Session and Memory bug in ods-bluez (thanks to Manuel Naranjo)
+
+2008-01-22 20:51  Tadas Dailyda
+
+	* src/ods-server-session.c, src/ods-server.c: Fix #23 and #27
+
+2008-01-22 20:18  Tadas Dailyda
+
+	* dbus-api.txt, src/Makefile.am, src/ods-error.c, src/ods-error.h,
+	  src/ods-manager.c: Fix #30
+
+2008-01-21 20:26  Tadas Dailyda
+
+	* test/ods-dbus-test.c: ods-dbus-test only for OPP and SendFile()
+	  testing
+
+2008-01-21 19:46  Tadas Dailyda
+
+	* configure.in, src/Makefile.am, src/ods-main.c, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-server.c, src/ods-server.h: Fix #21,
+	  #26, some autotools polishing by hadess
+
+2007-12-22 18:05  Tadas Dailyda
+
+	* src/ods-common.c, src/ods-common.h, src/ods-main.c: fix #31
+	  (Thanks to Christopher Brill and Manuel Naranjo)
+
+2007-12-22 18:02  Tadas Dailyda
+
+	* Makefile.am, configure.in, data/Makefile.am,
+	  data/obex-data-server.conf: fix #31 (Thanks to Christopher Brill
+	  and Manuel Naranjo)
+
+2007-11-30 17:03  Tadas Dailyda
+
+	* src/ods-main.c, src/ods-manager.c, src/ods-obex.c,
+	  src/ods-obex.h, src/ods-server-session.c: Fix #20
+
+2007-11-29 22:01  Tadas Dailyda
+
+	* src/ods-manager.c: preliminary fix for #21
+
+2007-11-28 17:49  Tadas Dailyda
+
+	* data/obex-data-server.service.in: fix .service file
+
+2007-11-25 18:45  Tadas Dailyda
+
+	* dbus-api.txt: more doc updates
+
+2007-11-25 18:35  Tadas Dailyda
+
+	* dbus-api.txt: more doc updates
+
+2007-11-25 17:45  Tadas Dailyda
+
+	* dbus-api.txt: doc update
+
+2007-11-25 17:39  Tadas Dailyda
+
+	* src/ods-server.c, test/ods-server-test.py: use baswap for
+	  getServerSessionInfo stuff
+
+2007-11-25 17:33  Tadas Dailyda
+
+	* src/ods-server.c, src/ods-server.h, src/ods-server.xml,
+	  test/ods-server-test.py: GetServerSessionInfo function in Server
+	  object
+
+2007-11-24 17:38  Tadas Dailyda
+
+	* src/ods-manager.c: fix GetSessionInfo
+
+2007-11-23 23:24  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-manager.xml: GetSessionInfo and GetServerInfo functions
+	  for Manager object
+
+2007-10-26 00:37  Tadas Dailyda
+
+	* test/ods-dbus-test.c: test app unhardcoding
+
+2007-10-01 20:11  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-obex.c, src/ods-session.c: Input
+	  validation in OdsSession
+
+2007-09-14 20:30  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-manager.c, src/ods-obex.c,
+	  src/ods-server-session.c, src/ods-server-session.h,
+	  src/ods-server.c, src/ods-server.h, src/ods-server.xml,
+	  test/ods-server-test.py, test/ods-session-test.py: Documentation
+	  updates, add allow_delete option to Server
+
+2007-09-11 21:21  Tadas Dailyda
+
+	* x: testing
+
+2007-09-11 21:20  Tadas Dailyda
+
+	* x: testing
+
+2007-09-11 17:27  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-manager.xml, src/ods-server.c,
+	  src/ods-session.c, src/ods-session.h: Make Session connecting
+	  non-blocking, remove auto_connect option when creating session :
+	  tds
+
+2007-09-07 17:22  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-manager.c,
+	  src/ods-obex.c, src/ods-server-session.c,
+	  src/ods-server-session.h, src/ods-server.c, src/ods-session.c:
+	  Implemented proper server finalization, finished ServerSession
+	  implementation
+
+2007-09-04 17:03  Tadas Dailyda
+
+	* src/ods-folder-listing.c, src/ods-manager.c, src/ods-obex.c,
+	  src/ods-session.c: Fix stupid bug, make it build both under 32
+	  and 64 bit
+
+2007-09-02 18:42  Tadas Dailyda
+
+	* configure.in: correct glib dependency
+
+2007-09-02 18:36  Tadas Dailyda
+
+	* src/ods-folder-listing.c: blah
+
+2007-09-02 18:34  Tadas Dailyda
+
+	* ., src/ods-common.c, src/ods-common.h, src/ods-session.c: further
+	  64bit fixes
+
+2007-09-02 14:49  Tadas Dailyda
+
+	* src/ods-folder-listing.c, src/ods-manager.c, src/ods-obex.c:
+	  64-bit fixes
+
+2007-09-02 14:28  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-error.c, src/ods-folder-listing.c,
+	  src/ods-manager.c, src/ods-obex.c, src/ods-session.c: replace
+	  Mutex with StaticMutex, other fixes
+
+2007-08-30 18:14  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-main.c,
+	  src/ods-manager.c, src/ods-manager.h, src/ods-obex.c,
+	  src/ods-server-session.c, src/ods-server-session.h: minor fixes :
+	  tds
+
+2007-08-29 23:00  Tadas Dailyda
+
+	* src/ods-common.c, src/ods-manager.c: Use bachk()
+
+2007-08-29 22:51  Tadas Dailyda
+
+	* src/ods-common.c, src/ods-common.h, src/ods-manager.c,
+	  src/ods-session.c: Use NameOwnerChanged DBus signal to determine
+	  when client disconnects from bus
+
+2007-08-28 18:01  Tadas Dailyda
+
+	* Makefile.am, data/ftp-service-record.xml,
+	  data/opp-service-record.xml, src/ods-bluez.c, src/ods-common.h,
+	  src/ods-manager.h: Use binary SDP records instead of XML
+
+2007-08-28 14:10  Tadas Dailyda
+
+	* Makefile.am, configure.in, data/Makefile.am, src,
+	  src/Makefile.am, src/dbus, src/ods-manager.c,
+	  src/ods-manager.xml, src/ods-server-session.c,
+	  src/ods-server-session.xml, src/ods-server.c, src/ods-server.xml,
+	  src/ods-session.c, src/ods-session.xml, test/Makefile.am: even
+	  more build cleanup
+
+2007-08-28 13:34  Tadas Dailyda
+
+	* Makefile.am, autogen.sh, configure.in, src/Makefile.am,
+	  src/dbus/Makefile.am, src/dbus/ods-server-session-dbus-glue.h,
+	  src/ods-bluez.c, src/ods-main.c, src/ods-manager.c,
+	  src/ods-obex.c, src/ods-session.c, test/Makefile.am: more build
+	  fixage
+
+2007-08-28 12:03  Tadas Dailyda
+
+	* acinclude.m4, aclocal, configure.in, data/Makefile.am,
+	  data/obex-data-server.conf, src/ods-session.c: autotools fixage :
+	  tds
+
+2007-08-27 19:37  Tadas Dailyda
+
+	* test/ods-server-test.py: b
+
+2007-08-27 19:27  Tadas Dailyda
+
+	* src/ods-bluez.c, src/ods-bluez.h, src/ods-server-session.c,
+	  test/ods-server-test.py: some fixes, ods-server-test improvements
+	 
+
+2007-08-16 17:04  Tadas Dailyda
+
+	* src/Makefile.am, src/dbus/ods-server-session-dbus-glue.h,
+	  src/ods-bluez.c, src/ods-common.c, src/ods-common.h,
+	  src/ods-error.c, src/ods-folder-listing.c,
+	  src/ods-folder-listing.h, src/ods-main.c, src/ods-manager.c,
+	  src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  src/ods-server.c, src/ods-session.h, test/ods-server-test.py:
+	  OBEX Object Push and OBEX FTP server implementation
+
+2007-08-02 12:32  Tadas Dailyda
+
+	* src/Makefile.am, src/ods-common.c, src/ods-common.h,
+	  src/ods-obex.c, src/ods-obex.h, src/ods-server-session.c,
+	  src/ods-server.c, src/ods-session-low-level.c,
+	  src/ods-session-low-level.h, src/ods-session.c,
+	  src/ods-session.h: some refactoring, further work on
+	  OdsServerSession GObject
+
+2007-07-31 13:30  Tadas Dailyda
+
+	* configure.in, data/ftp-service-record.xml, src/Makefile.am,
+	  src/dbus/Makefile.am, src/dbus/ods-server-session-dbus-glue.h,
+	  src/dbus/ods-server-session.xml, src/ods-bluez.c,
+	  src/ods-error.c, src/ods-error.h, src/ods-server-session.c,
+	  src/ods-server-session.h, src/ods-server.c, src/ods-server.h:
+	  Server session stuff, further work on Server GObject :tds
+
+2007-07-30 15:27  Tadas Dailyda
+
+	* configure.in, data/opp-service-record.xml,
+	  src/dbus/ods-server.xml, src/ods-bluez.c, src/ods-main.c,
+	  src/ods-manager.c, src/ods-server.c, src/ods-server.h,
+	  test/ods-server-test.py: server registers records / accepts
+	  client connections
+
+2007-07-26 21:34  Tadas Dailyda
+
+	* src/Makefile.am, src/dbus, src/ods-server.c, src/ods-server.h:
+	  server.{c|h} skeleton
+
+2007-07-26 17:20  Tadas Dailyda
+
+	* dbus-api.txt, src/dbus/Makefile.am, src/dbus/ods-manager.xml,
+	  src/dbus/ods-server.xml, src/ods-bluez.c, src/ods-bluez.h,
+	  src/ods-common.h, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-server.c, src/ods-server.h, test/ods-session-test.py:
+	  Beginnings of server implementation
+
+2007-07-19 16:12  Tadas Dailyda
+
+	* src/ods-session-low-level.c, src/ods-session.c,
+	  src/ods-session.h, test/ods-session-test.py: final session impl :
+	  tds
+
+2007-07-17 23:27  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-bluez.c, src/ods-error.c, src/ods-error.h,
+	  src/ods-main.c, src/ods-manager.c, src/ods-session-low-level.c,
+	  src/ods-session-low-level.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c,
+	  test/ods-session-test.py: Full Session implementation (some minor
+	  fixes left do be done)
+
+2007-07-16 20:22  Tadas Dailyda
+
+	* src/dbus/ods-session.xml, src/ods-error.c, src/ods-error.h,
+	  src/ods-marshal.list, src/ods-session-low-level.c,
+	  src/ods-session.c, src/ods-session.h, test/Makefile.am,
+	  test/ods-dbus-test.c: All Operations (except Cancel) working: tds
+
+2007-07-16 13:09  Tadas Dailyda
+
+	* dbus-api.txt, src/dbus/ods-session.xml, src/ods-bluez.c,
+	  src/ods-error.c, src/ods-manager.c, src/ods-session-low-level.c,
+	  src/ods-session-low-level.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c: Working
+	  RetrieveFolderListing, all SetPath methods
+
+2007-07-14 17:25  Tadas Dailyda
+
+	* src/Makefile.am, src/dbus/ods-session.xml, src/ods-error.h,
+	  src/ods-manager.c, src/ods-manager.h, src/ods-session.c,
+	  test/ods-dbus-test.c: Working Connect, Disconnect, Close for
+	  Session
+
+2007-07-14 15:19  Tadas Dailyda
+
+	* dbus-api.txt, src/Makefile.am, src/dbus/ods-manager.xml,
+	  src/ods-bluez.c, src/ods-bluez.h, src/ods-error.c,
+	  src/ods-error.h, src/ods-manager-low-level.c,
+	  src/ods-manager-low-level.h, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-session-low-level.c,
+	  src/ods-session-low-level.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c: Very close to full
+	  session implementation now
+
+2007-07-12 12:41  Tadas Dailyda
+
+	* src/ods-common.c, src/ods-common.h, src/ods-error.c,
+	  src/ods-error.h, src/ods-manager-low-level.c,
+	  src/ods-manager-low-level.h, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-session-low-level.c,
+	  src/ods-session-low-level.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c: More on session
+	  implementation
+
+2007-07-10 19:29  Tadas Dailyda
+
+	* src/Makefile.am, src/dbus/ods-session.xml, src/ods-common.c,
+	  src/ods-common.h, src/ods-main.c, src/ods-manager-low-level.c,
+	  src/ods-manager.c, src/ods-manager.h,
+	  src/ods-session-low-level.c, src/ods-session-low-level.h,
+	  src/ods-session.c, src/ods-session.h, test/ods-dbus-test.c:
+	  Further work on session implementation
+
+2007-06-27 10:23  Tadas Dailyda
+
+	* data/obex-data-server.conf, data/obex-data-server.service.in,
+	  src/ods-session-low-level.c, src/ods-session-low-level.h,
+	  src/ods-session.c, src/ods-session.h: some fixes, beginnings of
+	  session implementation
+
+2007-06-26 16:19  Tadas Dailyda
+
+	* dbus-api.txt, src/Makefile.am, src/ods-error.c, src/ods-error.h,
+	  src/ods-manager-low-level.c, src/ods-manager-low-level.h,
+	  src/ods-manager.c, src/ods-manager.h, src/ods-session.c,
+	  src/ods-session.h, test/ods-dbus-test.c: move errors to global
+	  domain, some other stuff: tds
+
+2007-06-26 00:14  Tadas Dailyda
+
+	* src/Makefile.am, src/dbus/ods-manager.xml,
+	  src/ods-manager-low-level.c, src/ods-manager-low-level.h,
+	  src/ods-manager.c, src/ods-manager.h, src/ods-session.c,
+	  src/ods-session.h: further non-productive work
+
+2007-06-22 23:51  Tadas Dailyda
+
+	* dbus-api.txt, src/ods-manager.c, src/ods-session.c,
+	  src/ods-session.h: smth
+
+2007-06-21 23:49  Tadas Dailyda
+
+	* src/dbus/ods-manager.xml, src/ods-common.c, src/ods-common.h,
+	  src/ods-manager.c, src/ods-manager.h, test/ods-dbus-test.c: even
+	  more to come 
+
+2007-06-21 19:58  Tadas Dailyda
+
+	* Makefile.am, configure.in, dbus-api.txt, src/Makefile.am,
+	  src/dbus/ods-manager.xml, src/ods-common.c, src/ods-common.h,
+	  src/ods-const.h, src/ods-main.c, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-session.c, test, test/Makefile.am,
+	  test/ods-dbus-test.c: Further war with dbus-glib 
+
+2007-06-20 23:20  Tadas Dailyda
+
+	* Makefile.am, src/dbus/ods-manager.xml, src/dbus/ods-session.xml,
+	  src/ods-main.c, src/ods-manager.c, src/ods-manager.h,
+	  src/ods-session.c, src/ods-session.h, test, test/Makefile.am:
+	  Further work 
+
+2007-06-20 14:08  Tadas Dailyda
+
+	* configure.in, src, src/Makefile.am, src/dbus,
+	  src/dbus/Makefile.am, src/dbus/ods-session.xml,
+	  src/ods-marshal.list, src/ods-session.c, src/ods-session.h:
+	  Beginnings of session class 
+
+2007-06-19 21:28  Tadas Dailyda
+
+	* dbus-api.txt, src, src/Makefile.am, src/dbus/ods-manager.xml,
+	  src/ods-const.h, src/ods-main.c, src/ods-manager.c,
+	  src/ods-manager.h, src/ods-session.c, src/ods-session.h: fixed
+	  D-Bus API + some other code 
+
+2007-06-15 21:52  Tadas Dailyda
+
+	* ., data, src, src/dbus: svn:ignore 
+
+2007-06-15 21:28  Tadas Dailyda
+
+	* ., AUTHORS, COPYING, ChangeLog, INSTALL, Makefile.am, NEWS,
+	  README, aclocal, aclocal/as_ac_expand.m4, autogen.sh,
+	  configure.in, data, data/Makefile.am, data/obex-data-server.conf,
+	  data/obex-data-server.service.in, dbus-api.txt, src,
+	  src/Makefile.am, src/dbus, src/dbus/Makefile.am,
+	  src/dbus/ods-manager.xml, src/ods-main.c, src/ods-manager.c,
+	  src/ods-manager.h: initial layout 
+

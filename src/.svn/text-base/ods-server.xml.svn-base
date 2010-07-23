@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node name="/">
+  <interface name="org.openobex.Server">
+    <method name="Start">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="path" />
+      <arg type="b" name="allow_write" />
+      <arg type="b" name="auto_accept" />
+    </method>
+    <method name="Stop">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="Close">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+    </method>
+    <method name="IsStarted">
+      <arg type="b" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="SetOption">
+      <annotation name="org.freedesktop.DBus.GLib.Async" value=""/>
+      <arg type="s" name="name"/>
+      <arg type="v" name="value"/>
+    </method>
+    <method name="GetServerSessionInfo">
+      <arg type="o" name="session_object" />
+      <arg type="a{ss}" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <method name="GetServerSessionList">
+      <arg type="as" direction="out">
+        <annotation name="org.freedesktop.DBus.GLib.ReturnVal" value=""/>
+      </arg>
+    </method>
+    <signal name="Started" />
+    <signal name="Stopped" />
+    <signal name="Closed" />
+    <signal name="SessionCreated">
+      <arg type="o" direction="out" />
+    </signal>
+    <signal name="SessionRemoved">
+      <arg type="o" direction="out" />
+    </signal>
+    <signal name="ErrorOccurred">
+      <arg type="s" direction="out"/>
+      <arg type="s" direction="out"/>
+    </signal>
+  </interface>
+</node>

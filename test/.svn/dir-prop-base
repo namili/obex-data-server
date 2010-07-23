@@ -1,0 +1,10 @@
+K 10
+svn:ignore
+V 47
+.deps
+.libs
+ods-dbus-test
+Makefile
+Makefile.in
+
+END
