@@ -44,7 +44,8 @@ enum {
   ODS_SERVER_OWNER,
   ODS_SERVER_DBUS_PATH,
   ODS_SERVER_PATH,
-  ODS_SERVER_TTY_DEV
+  ODS_SERVER_TTY_DEV,
+  ODS_SERVER_PROTOCOL
 };
 
 typedef struct OdsServerPrivate OdsServerPrivate;
@@ -76,7 +77,8 @@ typedef struct
 GType		 ods_server_get_type		(void);
 OdsServer	*ods_server_new				(gint fd,
 											gint service,
-											const gchar *owner);
+											const gchar *owner,
+											gint protocol);
 gboolean	 ods_server_start			(OdsServer *server,
 											const gchar *path,
 											gboolean allow_write,

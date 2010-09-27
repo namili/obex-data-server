@@ -120,6 +120,7 @@ typedef struct
 	gboolean		transfer_started_signal_emitted;
 	guint			suspend_timeout_id;
 	gint			suspend_result; /* transfers can be suspended for serversession accept/reject or when FIFO pipes are used in sessions */
+	gint			protocol;
 	/* extended info */
 	gchar			*img_handle;/* BIP-specific image handle */
 	GHashTable		*ext_info;/* Any extended info which is not used internally */
@@ -218,7 +219,8 @@ gboolean	ods_obex_srv_setpath (OdsObexContext *obex_context,
 											obex_object_t *object,
 											const gchar *root_path,
 											const gchar *current_path,
-											gchar **new_path);
+											gchar **new_path,
+											gboolean allow_write);
 gint		ods_obex_put_image (OdsObexContext *obex_context,
 											const gchar *local,
 											const gchar *remote,

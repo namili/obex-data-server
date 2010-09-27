@@ -95,6 +95,7 @@ struct OdsServerPrivate {
 	gboolean				allow_write; /* Whether to allow changes in file system */
 	gboolean				auto_accept;/* Whether incoming files should be auto-accepted */
 	GHashTable				*session_list; /* Server client list */
+	gint					protocol; /* rfcomm or l2cap*/
 };
 
 enum {
@@ -154,14 +155,13 @@ server_session_disconnected_cb (OdsServerSession *server_session,
 
 	if (!server->priv->is_disposing && !server->priv->is_stopping)
 		g_hash_table_remove (server->priv->session_list, session_object);
-	else
+	else if(server->priv->open_sessions>0)
 		server->priv->open_sessions--;
 
 	g_signal_emit (server, signals [SESSION_REMOVED], 0, session_object);
 
 	g_object_unref (server_session);
 	g_free (session_object);
-
 	if (server->priv->open_sessions == 0) {
 		if (server->priv->is_disposing) {
 			g_message ("Server disposed");
@@ -234,9 +234,11 @@ connect_callback (GIOChannel *source, GIOCondition cond, gpointer data)
 	OdsServerSessionCbData *cb_data;
 	GError				*error = NULL;
 	gboolean			ret = TRUE;
-
+	gint 				protocol;
 	g_message ("Client connecting");
 	server = ODS_SERVER (data);
+	g_object_get (server, "protocol", &protocol, NULL);
+	g_message("connect_callback,protocol is %d",protocol);
 
 	srv_fd = g_io_channel_unix_get_fd (source);
 
@@ -293,6 +295,7 @@ connect_callback (GIOChannel *source, GIOCondition cond, gpointer data)
 	                                  server->priv->auto_accept,
 	                                  server->priv->require_imaging_thumbnails,
 	                                  server->priv->owner);
+	ods_server_session_set_protocol (session, protocol);
 	if (server->priv->tty_dev)
 		g_object_set (session, "using-tty", TRUE, NULL);
 
@@ -367,6 +370,9 @@ ods_server_set_property (GObject      *object,
 		case ODS_SERVER_TTY_DEV:
 			self->priv->tty_dev = g_value_dup_string (value);
 			break;
+		case ODS_SERVER_PROTOCOL:
+			self->priv->protocol = g_value_get_int (value);
+			break;
 		default:
 			/* We don't have any other property... */
 			G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -400,6 +406,9 @@ ods_server_get_property (GObject      *object,
 			break;
 		case ODS_SERVER_TTY_DEV:
 			g_value_set_string (value, self->priv->tty_dev);
+			break;
+		case ODS_SERVER_PROTOCOL:
+			g_value_set_int (value, self->priv->protocol);
 			break;
 		default:
 			/* We don't have any other property... */
@@ -466,6 +475,14 @@ ods_server_class_init (OdsServerClass *klass)
 	                                                      "", "",
 	                                                      "" /* default value */,
 	                                                      G_PARAM_READWRITE));
+	
+	g_object_class_install_property (object_class,
+	                                 ODS_SERVER_PROTOCOL,
+	                                 g_param_spec_int ("protocol",
+	                                                   "", "",
+	                                                   RFCOMM_OBEX,L2CAP_OBEX, /* min, max values */
+	                                                   RFCOMM_OBEX /* default value */,
+	                                                   G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE));
 
 	signals [STARTED] =
 	    g_signal_new ("started",
@@ -650,13 +667,14 @@ ods_server_finalize (GObject *object)
  * Return value: a new OdsServer object.
  **/
 OdsServer *
-ods_server_new (gint fd, gint service, const gchar *owner)
+ods_server_new (gint fd, gint service, const gchar *owner,gint protocol)
 {
 	OdsServer *server;
 	server = g_object_new (ODS_TYPE_SERVER,
 	                       "fd", fd,
 	                       "service", service,
 	                       "owner", owner,
+	                       "protocol",protocol,
 	                       NULL);
 	return ODS_SERVER (server);
 }

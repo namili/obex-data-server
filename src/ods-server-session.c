@@ -298,7 +298,7 @@ send_image_handle (OdsServerSession *server_session, OdsObexContext *obex_contex
 		if (server_session->priv->require_imaging_thumbnails)
 			OBEX_ObjectSetRsp (object, OBEX_RSP_PARTIAL_CONTENT, OBEX_RSP_PARTIAL_CONTENT);
 		else
-			OBEX_ObjectSetRsp (object, OBEX_RSP_SUCCESS, OBEX_RSP_SUCCESS);
+			OBEX_ObjectSetRsp (object, OBEX_RSP_CONTINUE, OBEX_RSP_SUCCESS);
 	}
 }
 
@@ -321,6 +321,8 @@ obex_request_cancelled (OdsServerSession *server_session, OdsObexContext *obex_c
 		server_session->priv->dbus_context = NULL;
 		ODS_SERVER_SESSION_UNLOCK (server_session);
 	}
+	
+	//ods_server_session_disconnect_internal (server_session);
 }
 
 static gint
@@ -531,7 +533,8 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 					if (ods_obex_srv_setpath (obex_context, object,
 					                          server_session->priv->root_path,
 					                          server_session->priv->path,
-					                          &new_path)) {
+					                          &new_path,
+					                          server_session->priv->allow_write)) {
 						g_free (server_session->priv->path);
 						server_session->priv->path = new_path;
 					}
@@ -979,6 +982,16 @@ ods_server_session_new (gint fd, gint service, const gchar *path,
 	                               "owner", owner,
 	                               NULL);
 	return ODS_SERVER_SESSION (server_session);
+}
+
+void
+ods_server_session_set_protocol (OdsServerSession *session, gint protocol)
+{
+	if((protocol != RFCOMM_OBEX)&&(protocol != L2CAP_OBEX))
+		protocol = RFCOMM_OBEX;
+	
+	g_message ("ods_server_session_set_protocol --%d--",protocol);
+	session->priv->obex_context->protocol = protocol;
 }
 
 gboolean

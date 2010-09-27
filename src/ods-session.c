@@ -107,6 +107,7 @@ struct OdsSessionPrivate {
 	/* BIP-specific */
 	guint					imaging_feature;
 	ImagingSdpData			*imaging_sdp_data;
+	gint					 protocol;
 };
 
 enum {
@@ -210,8 +211,9 @@ obex_io_callback (GIOChannel *io_channel, GIOCondition cond, gpointer data)
 	obex_handle = (obex_t *) data;
 	session = ODS_SESSION (OBEX_GetUserData (obex_handle));
 
-	session_message (session, "io callback");
+	session_message (session, "obex_io callback");
 	if (cond & (G_IO_ERR | G_IO_HUP | G_IO_NVAL)) {
+		g_message("Lost connection000 %d,%d,%d,%d",cond,G_IO_ERR , G_IO_HUP, G_IO_NVAL);
 		if (session->priv->state == ODS_SESSION_STATE_INIT) {
 			/* Link error happened while establishing OBEX connection,
 			 * hence emit ConnectResultInternal here (no need to emit
@@ -329,6 +331,7 @@ obex_transfer_data_exchange_done (OdsSession *session, gint ret)
 		               obex_context->local,
 		               obex_context->target_size);
 		obex_context->transfer_started_signal_emitted = TRUE;
+		g_message ("TransferStarted emitted at obex_transfer_data_exchange_done");
 	}
 }
 
@@ -590,6 +593,7 @@ obex_request_cancelled (OdsSession *session, OdsObexContext *obex_context)
 	session->priv->state = ODS_SESSION_STATE_OPEN;
 
 	/* Emit Cancelled signal */
+	g_message("obex_request_cancelled  emit signal CANCELLED");
 	g_signal_emit (session, signals [CANCELLED], 0);
 
 	/* In case this was trigerred by Cancel method */
@@ -608,6 +612,7 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 	OdsObexContext	*obex_context;
 	gint			ret;
 
+	g_message("obex_event()--%d--",event);
 	session = ODS_SESSION (OBEX_GetUserData (handle));
 	obex_context = session->priv->obex_context;
 	ods_log_obex (session->priv->dbus_path, event, command, response);
@@ -647,6 +652,8 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 		case OBEX_EV_STREAMEMPTY:
 			ret = ods_obex_writestream (obex_context, object);
 			obex_transfer_data_exchange_done (session, ret);
+			if (ret<0) 
+				obex_request_cancelled (session, obex_context);
 			break;
 		case OBEX_EV_STREAMAVAIL:
 			ret = ods_obex_readstream (obex_context, object);
@@ -1204,6 +1211,15 @@ ods_session_close (OdsSession *session, DBusGMethodInvocation *context)
 	return TRUE;
 }
 
+void
+ods_session_set_protocol (OdsSession *session, gint protocol)
+{
+	if((protocol!=RFCOMM_OBEX)&&(protocol!=L2CAP_OBEX))
+		protocol = RFCOMM_OBEX;
+	
+	g_message ("ods_session_set_protocol --%d--",protocol);
+	session->priv->obex_context->protocol = protocol;
+}
 static gboolean
 ods_session_setpath (OdsSession *session, const gchar *path, gboolean create,
                      DBusGMethodInvocation *context)
@@ -2288,24 +2304,20 @@ ods_session_cancel_internal (OdsSession *session)
 
 	if (session->priv->state != ODS_SESSION_STATE_BUSY) {
 		/* emit CANCELLED signal now */
+		g_message("ods_session_cancel_internal emit signal CANCELLED");
 		g_signal_emit (session, signals[CANCELLED], 0);
 		return FALSE;
 	}
+	OBEX_CancelRequest (ctxt->obex_handle, TRUE); 
+	ctxt->cancelled = TRUE;  
 
-	if (ctxt->obex_cmd == OBEX_CMD_PUT) {
-		/* Send CMD_ABORT now */
-		OBEX_CancelRequest (ctxt->obex_handle, TRUE);
-	} else {
-		/* Send RSP_FORBIDDEN at obex_readstream;
-		 * cleanup will be done in obex_event */
-		ctxt->cancelled = TRUE;
-	}
 	return TRUE;
 }
 
 gboolean
 ods_session_cancel (OdsSession *session, DBusGMethodInvocation *context)
 {
+	g_message("-----------------------ods_session_cancel--------------------");
 	ODS_SESSION_LOCK (session);
 	/* do checks */
 	if (!ods_check_caller (context, session->priv->owner)) {

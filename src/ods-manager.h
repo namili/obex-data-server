@@ -101,6 +101,7 @@ gboolean	 ods_manager_create_bluetooth_server (OdsManager *manager,
 											const gchar *source_address,
 											const gchar *pattern,
 											gboolean require_pairing,
+											gboolean obex_over_l2cap,
 											DBusGMethodInvocation *context);
 gboolean	 ods_manager_create_tty_server (OdsManager *manager,
 											const gchar *tty_dev,

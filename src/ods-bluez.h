@@ -81,6 +81,8 @@ typedef struct OdsBluezCancellable_ {
 	guint			imaging_feature;
 	ImagingSdpData	*imagingdata;
 	gint			channel;
+	gint			psm;
+	gint			protocol;
 } OdsBluezCancellable;
 
 OdsBluezCancellable* ods_bluez_get_client_socket	(const bdaddr_t *dst,
@@ -92,12 +94,14 @@ OdsBluezCancellable* ods_bluez_get_client_socket	(const bdaddr_t *dst,
 														gpointer data);
 void		 ods_bluez_cancel_get_client_socket		(OdsBluezCancellable *cancel);
 gint		 ods_bluez_get_server_socket			(const gchar *address,
-														guint8 channel);
+														guint16 channel_psm,
+														int protocol);
 guint32		 ods_bluez_add_service_record			(const gchar *device,
 														gint service,
 														ImagingSdpData *imagingdata);
 void		 ods_bluez_remove_service_record		(const gchar *device,
-														guint32 record_handle);
+														guint32 record_handle,
+														gint service);
 void		 ods_bluez_finalize ();
 
 #endif /* __ODS_BLUEZ_H */

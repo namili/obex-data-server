@@ -176,6 +176,9 @@ gboolean	 ods_session_is_busy						(OdsSession *session);
 gboolean	 ods_session_cancel_internal				(OdsSession *session);
 gboolean	 ods_session_cancel							(OdsSession *session,
 															DBusGMethodInvocation *context);
+void		 ods_session_set_protocol 						(OdsSession *session, 
+															gint protocol);
+
 G_END_DECLS
 
 #endif /* __ODS_SESSION_H */

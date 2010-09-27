@@ -93,6 +93,16 @@ enum {
 #define ODS_BIP_RFCOMM_CHANNEL	11
 #define ODS_PBAP_RFCOMM_CHANNEL 15
 
+#define ODS_SYNC_L2CAP_PSM 	0x1003
+#define ODS_BIP_L2CAP_PSM 	0x1005 
+#define ODS_PBAP_L2CAP_PSM 	0x1013
+#define ODS_OPP_L2CAP_PSM	0x1015
+#define ODS_FTP_L2CAP_PSM	0x1001
+#define SDP_ATTR_GOEP2_PSM	0x0200	
+
+#define L2CAP_OBEX			1
+#define RFCOMM_OBEX			0
+
 gboolean	ods_check_bluetooth_address (const gchar *str);
 gboolean	ods_check_caller (DBusGMethodInvocation *context, const gchar *owner);
 gsize		ods_filename_to_utf16 (gchar **filename_utf16, const gchar *filename);

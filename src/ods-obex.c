@@ -352,7 +352,7 @@ ods_obex_context_new (void)
 	obex_context->tx_max = ODS_DEFAULT_TX_MTU - 200;
 	obex_context->connection_id = CONID_INVALID;
 	obex_context->stream_fd = -1;
-
+	obex_context->protocol = RFCOMM_OBEX;
 	return obex_context;
 }
 
@@ -378,7 +378,15 @@ ods_obex_setup_fdtransport (OdsObexContext *obex_context, gint fd,
 	OBEX_SetTransportMTU (obex_context->obex_handle, rx_mtu, tx_mtu);
 	g_message ("Used MTUs: RX=%u, TX=%u", rx_mtu, tx_mtu);
 
-	ret = FdOBEX_TransportSetup (obex_context->obex_handle, fd,	fd,	0);
+	if(obex_context->protocol==L2CAP_OBEX){
+		ret = FdOBEX_TransportSetup (obex_context->obex_handle, fd, fd, 0,OBEX_MT_SEQPACKET);
+		g_message ("data format is %d",OBEX_MT_SEQPACKET);
+	}
+	else{
+		ret = FdOBEX_TransportSetup (obex_context->obex_handle, fd,	fd,	0,OBEX_MT_STREAM);
+		g_message ("data format is %d",OBEX_MT_STREAM);
+	}
+
 	if (ret < 0) {
 		OBEX_Cleanup (obex_context->obex_handle);
 		g_set_error (error, ODS_ERROR, ODS_ERROR_FAILED, "Transport setup failed");
@@ -411,15 +419,23 @@ ods_obex_setup_usbtransport (OdsObexContext *obex_context, gint intf_num,
 		g_set_error (error, ODS_ERROR, ODS_ERROR_FAILED, "Out of memory");
 		goto err;
 	}
-
+#if 0
 	interfaces_num = OBEX_FindInterfaces(obex_context->obex_handle, &obex_intf);
 	if (intf_num >= interfaces_num) {
 		g_set_error (error, ODS_ERROR, ODS_ERROR_FAILED, "Invalid interface number");
 		goto err;
 	}
-
+#else
+	
+	interfaces_num = OBEX_EnumerateInterfaces(obex_context->obex_handle);
+	if (intf_num >= interfaces_num) {
+		g_set_error (error, ODS_ERROR, ODS_ERROR_FAILED, "Invalid interface number");
+		goto err;
+	}
+	obex_intf = OBEX_GetInterfaceByIndex(obex_context->obex_handle, intf_num);	
+#endif
 	OBEX_SetUserData (obex_context->obex_handle, user_data);
-	ret = OBEX_InterfaceConnect(obex_context->obex_handle, &obex_intf[intf_num]);
+	ret = OBEX_InterfaceConnect(obex_context->obex_handle, obex_intf);
 	if (ret < 0) {
 		g_set_error (error, ODS_ERROR, ODS_ERROR_FAILED, "USB setup failed");
 		goto err;
@@ -708,13 +724,13 @@ ods_obex_readstream (OdsObexContext *obex_context, obex_object_t *object)
 	if (obex_context->cancelled) {
 		/* It's not possible to cancel incoming request by sending CMD_ABORT
 		 * hence we set RSP_FORBIDDEN response */
-		OBEX_ObjectSetRsp (object, OBEX_RSP_FORBIDDEN, OBEX_RSP_FORBIDDEN);
+		 //OBEX_ObjectSetRsp (object, OBEX_RSP_FORBIDDEN, OBEX_RSP_FORBIDDEN);
 		ret = 2;
 		goto out;
 	}
 
 	actual = OBEX_ObjectReadStream (obex_context->obex_handle, object, &buf);
-	if (actual > 0) {
+	if (actual >= 0) {
 		g_message ("There is some data");
 		obex_context->counter += actual;
 
@@ -779,6 +795,10 @@ ods_obex_writestream (OdsObexContext *obex_context, obex_object_t *object)
 	gint				read_bytes = 0;
 	gint				ret = 0;
 
+	if (obex_context->cancelled) {
+		ret = -1;
+		goto out;
+	}
 	if (obex_context->stream_fd >= 0) {
 		g_message ("writestream from File: %d", obex_context->stream_fd);
 		hv.bs = obex_context->buf;
@@ -931,6 +951,17 @@ ods_obex_get (OdsObexContext *obex_context,
 		                            OBEX_HDR_NAME, hv, uname_len, 0);
 		if (ret < 0)
 			goto out;
+		
+		if(obex_context->protocol==L2CAP_OBEX){
+			/*Add SRM header*/
+			hv.bq1 = OBEX_SRM_ENABLE;
+			ret = OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+					OBEX_HDR_SRM, hv, 1,
+					0);
+			
+			if (ret < 0)
+				goto out;
+		}
 	}
 
 	/* Add local name header */
@@ -1020,11 +1051,35 @@ ods_obex_srv_get (OdsObexContext *obex_context, obex_object_t *object,
 					goto out;
 				}
 				break;
+				
+			case OBEX_HDR_SRM:
+				if(obex_context->protocol==RFCOMM_OBEX)
+					break;
+				if (hv.bq1 == OBEX_SRM_ENABLE) {
+					hv.bq1 = OBEX_SRM_ENABLE;
+					OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+							OBEX_HDR_SRM, hv, 1,
+							OBEX_FL_FIT_ONE_PACKET);
+					OBEX_SetEnableSRM(object);
+					g_message("ods_obex_srv_get Enable srm");
+				} 
+				else if (hv.bq1 == OBEX_SRM_ADVERTISE) {
+					hv.bq1 = OBEX_SRM_ENABLE;
+					OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+							OBEX_HDR_SRM, hv, 1,
+							OBEX_FL_FIT_ONE_PACKET);				
+				}
+				break;			
 			default:
 				break;
 		}
 	}
-	if (obex_context->remote && strcmp (obex_context->type, LST_TYPE)) {
+	
+	if (obex_context->remote)
+		g_message ("name: %s", obex_context->remote);
+	if (obex_context->type)
+		g_message ("type: %s", obex_context->type);
+	if (obex_context->remote &&((obex_context->type==NULL)||strcmp (obex_context->type, LST_TYPE))) {
 		/* If we have name header but type is NOT x-obex/folder-listing */
 		obex_context->local = g_build_filename (current_path,
 		                                        obex_context->remote,
@@ -1164,8 +1219,10 @@ ods_obex_srv_get (OdsObexContext *obex_context, obex_object_t *object,
 	ret = OBEX_ObjectAddHeader (obex_context->obex_handle, object,
 	                            OBEX_HDR_BODY, hv, 0, OBEX_FL_STREAM_START);
 out:
-	if (ret < 0)
+	if (ret < 0){
+		g_message("---------------ods_obex_srv_get error-----------------");
 		ods_obex_transfer_close (obex_context);
+	}
 	else
 		OBEX_ObjectSetRsp (object, OBEX_RSP_CONTINUE, OBEX_RSP_SUCCESS);
 	return ret;
@@ -1267,6 +1324,17 @@ ods_obex_put_full (OdsObexContext *obex_context,
 		                            OBEX_HDR_NAME, hv, uname_len, 0);
 		if (ret < 0)
 			goto out;
+		
+		if(obex_context->protocol==L2CAP_OBEX){
+			/*if have file name, then add SRM header*/
+			hv.bq1 = OBEX_SRM_ENABLE;
+			ret = OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+					OBEX_HDR_SRM, hv, 1,
+					0);
+			
+			if (ret < 0)
+				goto out;
+		}
 	}
 
 	/* Add type header */
@@ -1509,6 +1577,7 @@ ods_obex_srv_put (OdsObexContext *obex_context, obex_object_t *object,
 
 			case OBEX_HDR_TIME:
 				obex_context->modtime = ods_parse_iso8601 ((gchar*) hv.bs, hlen);
+				is_delete = FALSE;
 				g_message ("HDR_TIME");
 				break;
 
@@ -1549,6 +1618,24 @@ ods_obex_srv_put (OdsObexContext *obex_context, obex_object_t *object,
 				apparam = g_malloc (apparam_len);
 				memcpy (apparam, hv.bs, apparam_len);
 				break;
+			case OBEX_HDR_SRM:
+				if(obex_context->protocol==RFCOMM_OBEX)
+					break;
+				if (hv.bq1 == OBEX_SRM_ENABLE) {
+					hv.bq1 = OBEX_SRM_ENABLE;
+					OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+							OBEX_HDR_SRM, hv, 1,
+							OBEX_FL_FIT_ONE_PACKET);
+					OBEX_SetEnableSRM(object);
+					g_message("ods_obex_srv_put Enable srm");
+				} 
+				else if (hv.bq1 == OBEX_SRM_ADVERTISE) {
+					hv.bq1 = OBEX_SRM_ENABLE;
+					OBEX_ObjectAddHeader(obex_context->obex_handle, object,
+							OBEX_HDR_SRM, hv, 1,
+							OBEX_FL_FIT_ONE_PACKET);				
+				}
+				break;			
 
 			default:
 				break;
@@ -1593,6 +1680,7 @@ ods_obex_srv_put (OdsObexContext *obex_context, obex_object_t *object,
 		}
 	} else {
 		/* this is a delete request */
+		g_message ("this is a delete request ");
 		obex_context->report_progress = FALSE;
 		obex_context->local = g_build_filename (path, obex_context->remote, NULL);
 
@@ -1714,7 +1802,7 @@ out:
 gboolean
 ods_obex_srv_setpath (OdsObexContext *obex_context, obex_object_t *object,
                       const gchar *root_path, const gchar *current_path,
-                      gchar **new_path)
+                      gchar **new_path,gboolean allow_write)
 {
 	uint8_t				*nonhdrdata_dummy = NULL;
 	obex_setpath_hdr_t	*nonhdrdata;
@@ -1782,15 +1870,17 @@ ods_obex_srv_setpath (OdsObexContext *obex_context, obex_object_t *object,
 					return FALSE;
 				}
 				/* In case we are Creating new folder */
-				if (mkdir (*new_path, 0755) == 0) {
-					OBEX_ObjectSetRsp (object, OBEX_RSP_SUCCESS,
-					                   OBEX_RSP_SUCCESS);
-					return TRUE;
-				} else {
-					OBEX_ObjectSetRsp (object, OBEX_RSP_FORBIDDEN,
-					                   OBEX_RSP_FORBIDDEN);
-					return FALSE;
+				if(allow_write){
+					if (mkdir (*new_path, 0755) == 0) {
+						OBEX_ObjectSetRsp (object, OBEX_RSP_SUCCESS,
+						                   OBEX_RSP_SUCCESS);
+						return TRUE;
+					} 
 				}
+				OBEX_ObjectSetRsp (object, OBEX_RSP_FORBIDDEN,
+				                   OBEX_RSP_FORBIDDEN);
+				return FALSE;
+				
 			} else {
 				/* Name header empty, change path to root */
 				*new_path = g_strdup (root_path);

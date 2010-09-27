@@ -49,6 +49,7 @@
       <arg type="s" name="source_address" />
       <arg type="s" name="pattern" />
       <arg type="b" name="require_pairing" />
+      <arg type="b" name="obex_over_l2cap" />
       <arg type="o" name="server_object" direction="out" />
     </method>
     <method name="CreateTtyServer">

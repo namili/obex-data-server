@@ -94,6 +94,9 @@ GHashTable			*ods_server_session_get_transfer_info	(OdsServerSession *server_ses
 gboolean			 ods_server_session_cancel_internal (OdsServerSession *server_session);
 gboolean			 ods_server_session_cancel		(OdsServerSession *server_session,
 														DBusGMethodInvocation *context);
+void				 ods_server_session_set_protocol (OdsServerSession *session, 
+														gint protocol);
+
 
 G_END_DECLS
 

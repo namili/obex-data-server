@@ -37,6 +37,7 @@
 #include <bluetooth/rfcomm.h>
 #include <bluetooth/sdp.h>
 #include <openobex/obex.h>
+#include <bluetooth/l2cap.h>
 
 #include <glib.h>
 #include <dbus/dbus-glib.h>
@@ -321,11 +322,13 @@ server_started_cb (OdsServer *server, OdsManager *manager)
 	ImagingSdpData			*imagingdata = NULL;
 	struct statvfs			sfs;
 	guint32					record_handle;
-
+	gint 					protocol;
 	/* Add service record to SDP database */
 	g_object_get (server, "dbus-path", &server_object, NULL);
 	g_object_get (server, "path", &path, NULL);
 	g_object_get (server, "service", &service, NULL);
+	g_object_get (server, "protocol", &protocol, NULL);
+	g_message("server_started_cb,protocol is %d",protocol);
 	server_info = g_hash_table_lookup (manager->priv->server_list, server_object);
 
 	if (!server_info->bluetooth_source_address) {
@@ -377,9 +380,11 @@ server_stopped_cb (OdsServer *server, OdsManager *manager)
 {
 	OdsManagerServerInfo	*server_info;
 	gchar					*server_object;
+	guint					service;
 
 	g_message ("server stopped");
 	g_object_get (server, "dbus-path", &server_object, NULL);
+	g_object_get (server, "service", &service, NULL);
 
 	/* Remove SDP record (Bluetooth specific) */
 	server_info = g_hash_table_lookup (manager->priv->server_list, server_object);
@@ -389,7 +394,7 @@ server_stopped_cb (OdsServer *server, OdsManager *manager)
 	if (server_info->sdp_record_handle &&
 	        server_info->bluetooth_source_address) {
 		ods_bluez_remove_service_record (server_info->bluetooth_source_address,
-		                                 server_info->sdp_record_handle);
+		                                 server_info->sdp_record_handle,service);
 	}
 
 out:
@@ -462,7 +467,8 @@ client_socket_connected_cb (gint fd, gint rfcomm_channel,
 	gchar					*session_object = NULL;
 	gchar					*owner = NULL;
 	OdsManagerSessionInfo	*session_info;
-
+	gint					protocol = RFCOMM_OBEX;
+	
 	g_object_get (data->session, "dbus-path", &session_object, NULL);
 	g_object_get (data->session, "owner", &owner, NULL);
 
@@ -471,6 +477,9 @@ client_socket_connected_cb (gint fd, gint rfcomm_channel,
 	session_info = g_hash_table_lookup (data->manager->priv->session_list,
 	                                    session_object);
 	g_assert (session_info);
+	
+	if (session_info->bluetooth_cancel_data)
+		protocol = session_info->bluetooth_cancel_data->protocol;
 	if (session_info->bluetooth_cancel_data)
 		session_info->bluetooth_cancel_data = NULL;
 	session_info->bluetooth_channel = rfcomm_channel;
@@ -499,7 +508,7 @@ client_socket_connected_cb (gint fd, gint rfcomm_channel,
 	}
 
 	g_message ("Session created by: %s", owner);
-
+	ods_session_set_protocol(session_info->session,protocol);
 	/* Connect to the session objects signals. */
 	g_signal_connect (data->session, "closed",
 	                  G_CALLBACK (session_closed_cb), data->manager);
@@ -659,6 +668,7 @@ create_bluetooth_session_full (OdsManager *manager,
 	gchar		*target_uuid = NULL;
 	guint		imaging_feature = 0;
 	OdsBluezCancellable	*cancel_data;
+	g_message ("create_bluetooth_session_full");
 
 	g_return_val_if_fail (manager != NULL, FALSE);
 	g_return_val_if_fail (ODS_IS_MANAGER (manager), FALSE);
@@ -797,6 +807,7 @@ ods_manager_create_bluetooth_session (OdsManager *manager,
                                       const gchar *pattern,
                                       DBusGMethodInvocation *context)
 {
+	g_message("ods_manager_create_bluetooth_session");
 	return create_bluetooth_session_full (manager, target_address, source_address,
 	                                      pattern, NULL, context);
 }
@@ -1109,7 +1120,8 @@ gboolean
 ods_manager_create_bluetooth_server (OdsManager *manager,
                                      const gchar *source_address,
                                      const gchar *pattern,
-                                     gboolean require_pairing,
+                                     gboolean require_pairing,                            
+                                     gboolean obex_over_l2cap,
                                      DBusGMethodInvocation *context)
 {
 	GError		*error = NULL;
@@ -1117,12 +1129,14 @@ ods_manager_create_bluetooth_server (OdsManager *manager,
 	bdaddr_t	bd_address;
 	gint		service;
 	guint8		channel;
+	guint16		psm = 0;
 	gint		fd;
 	gint		sockopt;
 	OdsServer	*server;
 	gchar		*sender;
 	gchar		*server_object;
 
+	g_message ("ods_manager_create_bluetooth_server");
 	g_return_val_if_fail (manager != NULL, FALSE);
 	g_return_val_if_fail (ODS_IS_MANAGER (manager), FALSE);
 
@@ -1144,15 +1158,19 @@ ods_manager_create_bluetooth_server (OdsManager *manager,
 	if (!g_ascii_strcasecmp (pattern, ODS_MANAGER_FTP_STR)) {
 		service = ODS_SERVICE_FTP;
 		channel = ODS_FTP_RFCOMM_CHANNEL;
+		psm = ODS_FTP_L2CAP_PSM;
 	} else if (!g_ascii_strcasecmp (pattern, ODS_MANAGER_OPP_STR)) {
 		service = ODS_SERVICE_OPP;
 		channel = ODS_OPP_RFCOMM_CHANNEL;
+		psm = ODS_OPP_L2CAP_PSM;
 	} else if (!g_ascii_strcasecmp (pattern, ODS_MANAGER_PBAP_STR)) {
 		service = ODS_SERVICE_PBAP;
 		channel = ODS_PBAP_RFCOMM_CHANNEL;
+		psm = ODS_PBAP_L2CAP_PSM;
 	} else if (!g_ascii_strcasecmp (pattern, ODS_MANAGER_BIP_STR)) {
 		service = ODS_SERVICE_BIP;
 		channel = ODS_BIP_RFCOMM_CHANNEL;
+		psm = ODS_BIP_L2CAP_PSM;
 	} else {
 		g_set_error (&error, ODS_ERROR,	ODS_ERROR_INVALID_ARGUMENTS,
 		             "Invalid pattern");
@@ -1161,34 +1179,70 @@ ods_manager_create_bluetooth_server (OdsManager *manager,
 		return FALSE;
 	}
 
-	/* create server socket */
-	fd = ods_bluez_get_server_socket (source_address, channel);
-	if (fd == -1) {
-		/* could not create server socket */
-		g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
-		             "Could not create server socket");
-		dbus_g_method_return_error (context, error);
-		g_clear_error (&error);
-		return FALSE;
-	}
-	g_message ("server socket created");
-
-	/* require_pairing */
-	if (require_pairing) {
-		sockopt = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
-		if (setsockopt (fd, SOL_RFCOMM, RFCOMM_LM, &sockopt, sizeof (sockopt)) < 0) {
+	g_message ("create server socket ,service is %d ,obex_over_l2cap is %d",service,obex_over_l2cap);
+	if(!obex_over_l2cap){
+		/* create server socket */
+		/*first create rfcomm socket*/
+		fd = ods_bluez_get_server_socket (source_address, channel,RFCOMM_OBEX);
+		if (fd == -1) {
+			/* could not create server socket */
 			g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
-			             "Setting RFCOMM link mode failed");
+			             "Could not create server socket");
 			dbus_g_method_return_error (context, error);
 			g_clear_error (&error);
 			return FALSE;
 		}
-	}
+		g_message ("server socket rfcomm created");
 
-	/* create server object and return it's object path */
-	sender = dbus_g_method_get_sender (context);
-	g_message ("Server created by: %s", sender);
-	server = ods_server_new (fd, service, sender);
+		/* require_pairing */
+		if (require_pairing) {
+			sockopt = RFCOMM_LM_AUTH | RFCOMM_LM_ENCRYPT;
+			if (setsockopt (fd, SOL_RFCOMM, RFCOMM_LM, &sockopt, sizeof (sockopt)) < 0) {
+				g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
+				             "Setting RFCOMM link mode failed");
+				dbus_g_method_return_error (context, error);
+				g_clear_error (&error);
+				return FALSE;
+			}
+		}
+		
+		/* create server object and return it's object path */
+		sender = dbus_g_method_get_sender (context);
+		g_message ("Server created by: %s", sender);
+		server = ods_server_new (fd, service, sender,RFCOMM_OBEX);
+	}
+	else{
+		
+		/*create l2cap socket*/
+		fd = ods_bluez_get_server_socket (source_address, psm,L2CAP_OBEX);
+		if (fd == -1) {
+			/* could not create server socket */
+			g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
+						 "Could not create server socket");
+			dbus_g_method_return_error (context, error);
+			g_clear_error (&error);
+			return FALSE;
+		}
+		g_message ("server socket l2cap created");
+		/* require_pairing */
+		if (require_pairing) {
+			sockopt = L2CAP_LM_AUTH | L2CAP_LM_ENCRYPT;
+			if (setsockopt (fd,SOL_L2CAP, L2CAP_LM,&sockopt, sizeof (sockopt)) < 0) {
+				g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
+							 "Setting L2CAP link mode failed");
+				dbus_g_method_return_error (context, error);
+				g_clear_error (&error);
+				return FALSE;
+			}
+		}
+		
+		/* create server object and return it's object path */
+		sender = dbus_g_method_get_sender (context);
+		g_message ("Server created by: %s", sender);
+		server = ods_server_new (fd, service, sender,L2CAP_OBEX);
+
+	}
+		
 
 	/* add server to server list */
 	g_object_get (server, "dbus-path", &server_object, NULL);
@@ -1252,7 +1306,7 @@ ods_manager_create_tty_server (OdsManager *manager,
 	/* create server object and return it's object path */
 	sender = dbus_g_method_get_sender (context);
 	g_message ("Server created by: %s", sender);
-	server = ods_server_new (fd, service, sender);
+	server = ods_server_new (fd, service, sender,RFCOMM_OBEX);
 	g_object_set (server, "tty-dev", tty_dev, NULL);
 
 	/* add server to server list */

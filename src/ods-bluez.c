@@ -37,11 +37,14 @@
 #include <bluetooth/rfcomm.h>
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
+#include <bluetooth/l2cap.h>
 
 #include "ods-bluez.h"
 #include "ods-common.h"
 #include "ods-error.h"
+#include "ods-obex.h"
 
+static int record[ODS_SERVICE_BIP+1] ={0};
 static gboolean sdp_initiate_search		(OdsBluezCancellable *ctxt);
 
 static GHashTable *sdp_session_list = NULL;
@@ -99,6 +102,131 @@ client_socket_connect_cb (GIOChannel *io_channel, GIOCondition cond,
 }
 
 static void
+l2cap_connect (OdsBluezCancellable *cb_data, gint psm)
+{
+	OdsBluezFunc		cb = cb_data->cb;
+	GError				*error = NULL;
+	struct sockaddr_l2 addr;
+	int					fd = -1;
+	GIOChannel			*io_channel = NULL;
+	
+	uint8_t mode = L2CAP_MODE_ERTM;
+	uint8_t hsenable = 1;
+	uint16_t imtu = ODS_DEFAULT_RX_MTU;
+
+	g_message ("begin l2cap_connect---");
+	
+	cb_data->psm = psm;
+	cb_data->protocol = L2CAP_OBEX;
+	/* Create socket and start connecting */
+	fd = socket (PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
+	if (fd < 0) {
+		g_set_error (&error, ODS_ERROR, ODS_ERROR_CONNECTION_ATTEMPT_FAILED,
+		             "Could not create socket");
+		goto err;
+	}
+
+	memset (&addr, 0, sizeof(addr));
+	/* source address */
+	addr.l2_family  = AF_BLUETOOTH;
+	bacpy (&addr.l2_bdaddr, &cb_data->source_address);
+
+	if (bind (fd, (struct sockaddr *) &addr, sizeof (addr)) < 0) {
+		g_set_error (&error, ODS_ERROR,
+		             ODS_ERROR_CONNECTION_ATTEMPT_FAILED,
+		             "Binding to local device failed (errno: %d)", errno);
+		goto err;
+	}
+
+
+	if (mode || hsenable || imtu) {
+		struct l2cap_options opts;
+		socklen_t optlen;	
+
+		/* Get default options */
+		memset(&opts, 0, sizeof(opts));
+		optlen = sizeof(opts);
+
+		if (getsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &opts, &optlen) < 0) {
+			close(fd);
+			g_message ("getsockopt error");
+			return ;
+		}
+
+		/* Set new options */
+		if (mode)
+			opts.mode = mode;
+		if (hsenable) {
+			opts.hschan_req = hsenable;
+			opts.fcs = 1;
+			opts.guaranteed = 0;
+			opts.reconfig = 0;
+		}
+		if (imtu)
+			opts.imtu = imtu;
+
+		if (setsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &opts, sizeof(opts)) < 0) {
+			close(fd);
+			g_message ("setsockopt error");
+			return ;
+		}
+	}
+
+	io_channel = g_io_channel_unix_new(fd);
+	if (io_channel == NULL) {
+		close(fd);
+		return;
+	}
+
+	if (g_io_channel_set_flags(io_channel, G_IO_FLAG_NONBLOCK,
+						NULL) != G_IO_STATUS_NORMAL) {
+		g_io_channel_unref(io_channel);
+		close(fd);
+		return;
+	}
+
+	memset (&addr, 0, sizeof(addr));
+	/* destination address */
+	addr.l2_family  = AF_BLUETOOTH;
+	addr.l2_psm =htobs( psm);
+	bacpy (&addr.l2_bdaddr, &cb_data->target_address);
+
+
+	if (connect (fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+		/* BlueZ returns EAGAIN eventhough it should return EINPROGRESS */
+		if (!(errno == EAGAIN || errno == EINPROGRESS)) {
+			g_set_error (&error, ODS_ERROR,
+			             ODS_ERROR_CONNECTION_ATTEMPT_FAILED,
+			             "Connecting to remote device failed");
+			goto err;
+		}
+
+		g_message ("l2cap Connect in progress");
+		cb_data->io_watch = g_io_add_watch (io_channel,
+		                                    G_IO_OUT | G_IO_ERR | G_IO_NVAL | G_IO_HUP,
+		                                    (GIOFunc) client_socket_connect_cb, cb_data);
+		cb_data->fd = fd;
+	} else {
+		/* Connect succeeded with first try */
+		g_message ("Connect on l2cap successful");
+		client_socket_connect_cb (io_channel, G_IO_OUT, cb_data);
+	}
+	g_io_channel_unref (io_channel);
+	return;
+
+err:
+	if (io_channel)
+		g_io_channel_unref (io_channel);
+	if (fd >= 0)
+		close (fd);
+	cb (-1, cb_data->channel, cb_data->imagingdata, error, cb_data->cb_data);
+	ods_bluez_cancellable_free (cb_data);
+	g_clear_error (&error);
+}
+
+
+
+static void
 rfcomm_connect (OdsBluezCancellable *cb_data, gint channel)
 {
 	OdsBluezFunc		cb = cb_data->cb;
@@ -106,6 +234,9 @@ rfcomm_connect (OdsBluezCancellable *cb_data, gint channel)
 	struct sockaddr_rc	addr;
 	int					fd = -1;
 	GIOChannel			*io_channel = NULL;
+
+	cb_data->protocol = RFCOMM_OBEX;
+	g_message("para channel is %d",channel);
 
 	/* Create socket and start connecting */
 	fd = socket (AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
@@ -178,8 +309,9 @@ sdp_get_channel (sdp_record_t *sdp_record,
 	GError				*error = NULL;
 	sdp_list_t			*protos = NULL;
 	gint				channel = -1;
-
-	g_message ("getting RFCOMM channel");
+	sdp_data_t 			*p = NULL;
+	
+	g_message ("getting RFCOMM channel or l2cap psm");
 	/* get channel for this service */
 	if (sdp_get_access_protos (sdp_record, &protos) != 0) {
 		g_set_error (&error, ODS_ERROR, ODS_ERROR_FAILED,
@@ -187,6 +319,18 @@ sdp_get_channel (sdp_record_t *sdp_record,
 		goto err;
 	}
 
+	p = sdp_data_get(sdp_record,SDP_ATTR_GOEP2_PSM);
+	if(p){
+		guint16 			psm = -1;
+		psm = p->val.uint16;
+		g_message("psm is %d",psm);
+		if(psm>0){
+			cb_data->protocol = L2CAP_OBEX;
+			l2cap_connect(cb_data,psm);
+			return;
+		}
+	}
+	cb_data->protocol =RFCOMM_OBEX;
 	channel = sdp_get_proto_port (protos, RFCOMM_UUID);
 	cb_data->channel = channel;
 
@@ -222,6 +366,7 @@ sdp_get_channel (sdp_record_t *sdp_record,
 		sdp_list_foreach (protos, (sdp_list_func_t)sdp_list_free, 0);
 		sdp_list_free (protos, 0);
 	}
+	g_message("channel is %d",channel);
 
 	rfcomm_connect (cb_data, channel);
 	return;
@@ -492,24 +637,72 @@ ods_bluez_cancel_get_client_socket (OdsBluezCancellable *cancel)
 }
 
 gint
-ods_bluez_get_server_socket (const gchar *address, guint8 channel)
+ods_bluez_get_server_socket (const gchar *address, guint16 channel_psm, int protocol)
 {
-	struct sockaddr_rc addr;
 	gint fd = -1;
+	
+	if(protocol==RFCOMM_OBEX){
+		struct sockaddr_rc addr;
+		fd = socket (AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+		if (fd < 0)
+			goto err;
 
-	fd = socket (AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-	if (fd < 0)
-		goto err;
-
-	memset (&addr, 0, sizeof(addr));
-	addr.rc_family  = AF_BLUETOOTH;
-	addr.rc_channel = channel;
-	str2ba (address, &addr.rc_bdaddr);
-
-	if (bind (fd, (struct sockaddr *) &addr, sizeof (addr)) < 0) {
-		goto err;
+		memset (&addr, 0, sizeof(addr));
+		addr.rc_family  = AF_BLUETOOTH;
+		addr.rc_channel = channel_psm;
+		str2ba (address, &addr.rc_bdaddr);
+		
+		if (bind (fd, (struct sockaddr *) &addr, sizeof (addr)) < 0) {
+			goto err;
+		}
+		
 	}
+	else{
+		
+		struct sockaddr_l2 addr;
+		struct l2cap_options l2o;
+		socklen_t len;
+		uint8_t mode = L2CAP_MODE_ERTM;
+		uint8_t hsenable = 1;
+		
+		fd = socket(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
+		if (fd < 0) {
+			goto err;
+		}
+		memset(&addr, 0, sizeof(addr));
+		addr.l2_family = AF_BLUETOOTH;
+		str2ba (address, &addr.l2_bdaddr);
+		addr.l2_psm = htobs(channel_psm);
+		
+		if (bind (fd, (struct sockaddr *) &addr, sizeof (addr)) < 0) {
+			goto err;
+		}
 
+		memset(&l2o, 0, sizeof(l2o));
+		len = sizeof(l2o);
+		if (getsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &l2o,
+								&len) < 0) {
+			goto err;
+		}
+
+		
+		l2o.imtu = ODS_DEFAULT_RX_MTU;
+		l2o.omtu = ODS_DEFAULT_TX_MTU;
+		if (mode)
+			l2o.mode = mode;
+		if (hsenable) {
+			l2o.hschan_req = hsenable;
+			l2o.fcs = 1;
+			l2o.guaranteed = 0;
+			l2o.reconfig = 0;
+		}
+		
+		if (setsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &l2o,
+							sizeof(l2o)) < 0) {
+			goto err;
+		}
+
+	}
 	if (listen (fd, 1) < 0) {
 		goto err;
 	}
@@ -610,6 +803,7 @@ ods_bluez_add_service_record (const gchar *device, gint service,
 	guint8 chan;
 	guint16 svclass_id_;
 	guint16 profile_id_;
+	guint16 psm = 0x1001;
 	gchar *desc;
 	/* --- */
 	sdp_list_t *svclass_id, *pfseq, *apseq, *root;
@@ -626,34 +820,42 @@ ods_bluez_add_service_record (const gchar *device, gint service,
 	/* --- */
 	/* only for BIP */
 	sdp_data_t *supp_cap, *supp_feat, *supp_func, *data_cap;
+	sdp_data_t *l2cap_obex;
 	/* --- */
 	sdp_record_t rec;
-
+	
+	if((service>=ODS_SERVICE_OPP)&&(service<=ODS_SERVICE_BIP))
+		if(record[service]>0)
+				return record[service];
+	g_message("ods_bluez_add_service_record  -%d--kkK\n",service);
 	switch (service) {
 		case ODS_SERVICE_OPP:
-
 			chan = ODS_OPP_RFCOMM_CHANNEL;
 			svclass_id_ = OBEX_OBJPUSH_SVCLASS_ID;
 			profile_id_ = OBEX_OBJPUSH_PROFILE_ID;
 			desc = "OBEX Object Push";
+			psm =  ODS_OPP_L2CAP_PSM;
 			break;
 		case ODS_SERVICE_FTP:
 			chan = ODS_FTP_RFCOMM_CHANNEL;
 			svclass_id_ = OBEX_FILETRANS_SVCLASS_ID;
 			profile_id_ = OBEX_FILETRANS_PROFILE_ID;
 			desc = "OBEX File Transfer";
+			psm =  ODS_FTP_L2CAP_PSM;
 			break;
 		case ODS_SERVICE_PBAP:
 			chan = ODS_PBAP_RFCOMM_CHANNEL;
 			svclass_id_ = PBAP_PSE_SVCLASS_ID;
 			profile_id_ = PBAP_PSE_PROFILE_ID;
 			desc = "OBEX Phonebook Access";
+			psm =  ODS_PBAP_L2CAP_PSM;
 			break;
 		case ODS_SERVICE_BIP:
 			chan = ODS_BIP_RFCOMM_CHANNEL;
 			svclass_id_ = IMAGING_RESPONDER_SVCLASS_ID;
 			profile_id_ = IMAGING_PROFILE_ID;
 			desc = "Imaging";
+			psm =  ODS_BIP_L2CAP_PSM;
 			break;
 		default:
 			return 0;
@@ -710,6 +912,9 @@ ods_bluez_add_service_record (const gchar *device, gint service,
 		sdp_attr_add (&rec, SDP_ATTR_TOTAL_IMAGING_DATA_CAPACITY, data_cap);
 	}
 
+	l2cap_obex = sdp_data_alloc (SDP_UINT16, &psm);
+	sdp_attr_add (&rec, SDP_ATTR_GOEP2_PSM, l2cap_obex);
+	
 	sdp_set_info_attr (&rec, desc, 0, 0);
 
 	ret = add_bin_service_record (device, &rec);
@@ -725,12 +930,14 @@ ods_bluez_add_service_record (const gchar *device, gint service,
 	sdp_data_free (channel);
 	sdp_list_free (rec.attrlist, (sdp_free_func_t) sdp_data_free);
 	sdp_list_free (rec.pattern, free);
-
+	
+	record[service] = ret;
+	g_message("ret is %d",ret);
 	return ret;
 }
 
 void
-ods_bluez_remove_service_record (const gchar *device, guint32 record_handle)
+ods_bluez_remove_service_record (const gchar *device, guint32 record_handle,gint service)
 {
 	sdp_session_t *session;
 	bdaddr_t src;
@@ -746,8 +953,10 @@ ods_bluez_remove_service_record (const gchar *device, guint32 record_handle)
 	ret = sdp_device_record_unregister_binary (session,	&src, record_handle);
 	if (ret)
 		g_warning ("Failed to unregister service record");
-	else
+	else{
 		g_message ("SDP service unregistered");
+		record[service] = 0;
+	}
 
 	sdp_session_list_remove (device);
 }
