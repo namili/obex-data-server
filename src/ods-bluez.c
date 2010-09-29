@@ -157,13 +157,16 @@ l2cap_connect (OdsBluezCancellable *cb_data, gint psm)
 		if (mode)
 			opts.mode = mode;
 		if (hsenable) {
-			opts.hschan_req = hsenable;
 			opts.fcs = 1;
-			opts.guaranteed = 0;
-			opts.reconfig = 0;
 		}
 		if (imtu)
 			opts.imtu = imtu;
+
+		if (setsockopt(fd, SOL_BLUETOOTH, BT_AMP_POLICY, &hsenable, sizeof(hsenable)) < 0) {
+			close(fd);
+			g_message ("Can't set AMP policy");
+			return ;
+		}
 
 		if (setsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &opts, sizeof(opts)) < 0) {
 			close(fd);
@@ -691,12 +694,15 @@ ods_bluez_get_server_socket (const gchar *address, guint16 channel_psm, int prot
 		if (mode)
 			l2o.mode = mode;
 		if (hsenable) {
-			l2o.hschan_req = hsenable;
 			l2o.fcs = 1;
-			l2o.guaranteed = 0;
-			l2o.reconfig = 0;
 		}
-		
+
+		if (setsockopt(fd, SOL_BLUETOOTH, BT_AMP_POLICY, &hsenable, sizeof(hsenable)) < 0) {
+			close(fd);
+			g_message ("Can't set AMP policy");
+			goto err;
+		}
+
 		if (setsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &l2o,
 							sizeof(l2o)) < 0) {
 			goto err;
