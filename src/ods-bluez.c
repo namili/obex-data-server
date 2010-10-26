@@ -667,11 +667,17 @@ ods_bluez_get_server_socket (const gchar *address, guint16 channel_psm, int prot
 		socklen_t len;
 		uint8_t mode = L2CAP_MODE_ERTM;
 		uint8_t hsenable = 1;
+		long arg;
 		
 		fd = socket(PF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP);
 		if (fd < 0) {
 			goto err;
 		}
+		arg = fcntl(fd, F_GETFL);
+		arg |= O_NONBLOCK;
+		if (fcntl(fd, F_SETFL, arg) < 0)
+			goto err;
+
 		memset(&addr, 0, sizeof(addr));
 		addr.l2_family = AF_BLUETOOTH;
 		str2ba (address, &addr.l2_bdaddr);
