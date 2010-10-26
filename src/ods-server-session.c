@@ -343,7 +343,7 @@ obex_suspend_request (OdsServerSession *server_session, OdsObexContext *obex_con
 
 static void
 obex_request_put (OdsServerSession *server_session, OdsObexContext *obex_context,
-                  obex_object_t *object)
+                  obex_object_t *object,int final)
 {
 	guint8		action = 0;/* only used for BIP RemoteDisplay*/
 	gint		ret, suspend_ret;
@@ -373,7 +373,7 @@ obex_request_put (OdsServerSession *server_session, OdsObexContext *obex_context
 	if (!server_session->priv->auto_accept && !obex_context->suspend_result)
 		no_response_on_success = TRUE;
 	ret = ods_obex_srv_put (obex_context, object,
-	                        server_session->priv->path, &action, no_response_on_success);
+	                        server_session->priv->path, &action, no_response_on_success,final);
 	g_message ("ret=%d", ret);
 	/* Add ImageFilename to ExtInfo according to ImageHandle (for BIP) */
 	if (ret == 0 && obex_context->img_handle) {
@@ -428,7 +428,9 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 	OdsObexContext		*obex_context;
 	gchar				*new_path;
 	gint				ret;
+	int					final = command & OBEX_FINAL;
 
+	command &= ~OBEX_FINAL;
 	server_session = ODS_SERVER_SESSION (OBEX_GetUserData (handle));
 	obex_context = server_session->priv->obex_context;
 	ods_log_obex (server_session->priv->dbus_path, event, command, response);
@@ -507,7 +509,7 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 		case OBEX_EV_REQCHECK:
 			if (command == OBEX_CMD_PUT) {
 				g_message ("CMD_PUT requested at REQCHECK");
-				obex_request_put (server_session, obex_context, object);
+				obex_request_put (server_session, obex_context, object, final);
 			}
 			break;
 		case OBEX_EV_REQ:
@@ -558,7 +560,7 @@ obex_event (obex_t *handle, obex_object_t *object, int mode, int event,
 					break;
 				case OBEX_CMD_PUT:
 					g_message ("CMD_PUT requested");
-					obex_request_put (server_session, obex_context, object);
+					obex_request_put (server_session, obex_context, object, final);
 					break;
 				default:
 					OBEX_ObjectSetRsp (object, OBEX_RSP_NOT_IMPLEMENTED,

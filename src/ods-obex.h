@@ -211,7 +211,8 @@ gint		ods_obex_srv_put	(OdsObexContext *obex_context,
 											obex_object_t *object,
 											const gchar *path,
 											guint8 *action,
-											gboolean no_response_on_success);
+											gboolean no_response_on_success,
+											gint final);
 gint		ods_obex_setpath	(OdsObexContext *obex_context,
 											const gchar *path,
 											gboolean create);

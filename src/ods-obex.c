@@ -1529,7 +1529,7 @@ ods_obex_srv_remote_display (OdsObexContext *obex_context,
 
 gint
 ods_obex_srv_put (OdsObexContext *obex_context, obex_object_t *object,
-                  const gchar *path, guint8 *action, gboolean no_response_on_success)
+                  const gchar *path, guint8 *action, gboolean no_response_on_success,gint final)
 {
 	obex_headerdata_t	hv;
 	uint8_t				hi;
@@ -1541,6 +1541,10 @@ ods_obex_srv_put (OdsObexContext *obex_context, obex_object_t *object,
 	gchar				*img_descriptor = NULL;
 	guchar				*apparam = NULL;
 	guint				apparam_len = 0;
+
+	/*check both final bit and body header */
+	if(!final)
+		is_delete = FALSE; 
 
 	while (OBEX_ObjectGetNextHeader(obex_context->obex_handle, object,
 	                                &hi, &hv, &hlen)) {
