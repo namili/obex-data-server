@@ -111,7 +111,7 @@ l2cap_connect (OdsBluezCancellable *cb_data, gint psm)
 	GIOChannel			*io_channel = NULL;
 	
 	uint8_t mode = L2CAP_MODE_ERTM;
-	uint8_t hsenable = 1;
+	uint8_t hsenable = FALSE;
 	uint16_t imtu = ODS_DEFAULT_RX_MTU;
 
 	g_message ("begin l2cap_connect---");
@@ -161,13 +161,13 @@ l2cap_connect (OdsBluezCancellable *cb_data, gint psm)
 		}
 		if (imtu)
 			opts.imtu = imtu;
-
+		/*
 		if (setsockopt(fd, SOL_BLUETOOTH, BT_AMP_POLICY, &hsenable, sizeof(hsenable)) < 0) {
 			close(fd);
 			g_message ("Can't set AMP policy");
 			return ;
 		}
-
+		*/
 		if (setsockopt(fd, SOL_L2CAP, L2CAP_OPTIONS, &opts, sizeof(opts)) < 0) {
 			close(fd);
 			g_message ("setsockopt error");
